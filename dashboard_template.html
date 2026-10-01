@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2026 Power 4 QBs, RBs, WRs and TEs through Week {{WEEK}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--fgT:#10231a;--gsT:#ffffff;--prT:#ffffff;--ppT:#ffffff;--paper:#ffffff;--ink:#10231a;--dim:#3d5145;--line:#cfd8d2;--soft:#f2f6f3;--trk:#e3eae5;--deep:#0d2618;--on:#ffffff;
+--turf:#1b4d31;--turf2:#205a39;--fg:#b87d00;--gs:#d1401f;--pr:#1c74c9;--pp:#56645b;--hl:rgba(184,125,0,.16);--hlo:#f4ead6;--focus:#1c74c9;--shadow:0 6px 22px rgba(13,38,24,.18);
+color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--fgT:#0f1613;--gsT:#0f1613;--prT:#0f1613;--ppT:#0f1613;--paper:#0f1613;--ink:#eef3ef;--dim:#b7c6bc;--line:#35463c;--soft:#17211c;--trk:#27342d;--deep:#e8f0ea;--on:#0f1613;
+--fg:#f0b429;--gs:#ff7a55;--pr:#63abf3;--pp:#aab8af;--hl:rgba(240,180,41,.2);--hlo:#3c3617;--focus:#63abf3;--shadow:0 6px 22px rgba(0,0,0,.5);color-scheme:dark}}
+:root[data-theme="dark"]{--fgT:#0f1613;--gsT:#0f1613;--prT:#0f1613;--ppT:#0f1613;--paper:#0f1613;--ink:#eef3ef;--dim:#b7c6bc;--line:#35463c;--soft:#17211c;--trk:#27342d;--deep:#e8f0ea;--on:#0f1613;
+--fg:#f0b429;--gs:#ff7a55;--pr:#63abf3;--pp:#aab8af;--hl:rgba(240,180,41,.2);--hlo:#3c3617;--focus:#63abf3;--shadow:0 6px 22px rgba(0,0,0,.5);color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.55 Barlow,"Segoe UI",system-ui,sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:1120px;margin:0 auto;padding:26px 18px 64px}
+h1{font:800 clamp(44px,10vw,84px)/.88 "Barlow Condensed","Arial Narrow",sans-serif;margin:0;letter-spacing:-.5px}
+.sub{color:var(--dim);margin:12px 0 0;max-width:64ch}
+h2{font:700 28px/1.1 "Barlow Condensed","Arial Narrow",sans-serif;margin:0 0 4px}
+h3{font:700 20px/1.2 "Barlow Condensed","Arial Narrow",sans-serif;margin:22px 0 6px}
+.note{color:var(--dim);font-size:14px;margin:0 0 14px;max-width:70ch}
+section{margin-top:44px}
+.controls{margin:24px 0 6px;display:grid;gap:12px}
+.group{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.group>span{font:600 16px "Barlow Condensed","Arial Narrow",sans-serif;color:var(--dim);width:92px}
+button{font-family:inherit}
+button.chip{font:600 15px Barlow,system-ui,sans-serif;color:var(--ink);background:var(--paper);border:1.5px solid var(--dim);border-radius:999px;padding:6px 13px;cursor:pointer;display:inline-flex;gap:7px;align-items:center;min-height:36px}
+button.chip[aria-pressed=true]{background:var(--deep);color:var(--on);border-color:var(--deep)}
+button.chip i{width:11px;height:11px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1.5px var(--paper)}
+.seg{display:inline-flex;border:2px solid var(--deep);border-radius:6px;overflow:hidden}
+.seg button{font:700 17px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.2px;border:0;background:var(--paper);color:var(--ink);padding:8px 16px;cursor:pointer;min-height:40px}
+.seg button[aria-pressed=true]{background:var(--deep);color:var(--on)}
+.modehelp{font-size:14px;color:var(--dim);margin:2px 0 0;max-width:70ch}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.count{font:600 17px "Barlow Condensed","Arial Narrow",sans-serif;color:var(--dim);margin:10px 0 0}
+.count b{color:var(--ink);font-size:21px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
+.field{background:repeating-linear-gradient(90deg,var(--turf) 0 10%,var(--turf2) 10% 20%);border:3px solid var(--deep);border-radius:4px;position:relative;touch-action:manipulation}
+.field svg{display:block}
+svg text{font-family:"Barlow Condensed","Arial Narrow",sans-serif}
+circle.pl{cursor:pointer}
+#tip{position:absolute;pointer-events:none;background:var(--paper);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);padding:9px 12px;border-radius:4px;font-size:14px;line-height:1.4;opacity:0;transition:opacity .12s;min-width:170px;max-width:240px;z-index:3}
+#tip b{font:700 19px "Barlow Condensed","Arial Narrow",sans-serif;display:block;line-height:1.1}
+#tip small{color:var(--dim);display:block;margin-bottom:4px}
+select{font:600 16px Barlow,system-ui,sans-serif;color:var(--ink);background:var(--paper);border:1.5px solid var(--dim);border-radius:6px;padding:8px 10px;max-width:100%;min-height:42px}
+.card{border-top:4px solid var(--deep);padding-top:16px;margin-top:14px}
+.card .nm{font:800 clamp(34px,7vw,52px)/.95 "Barlow Condensed","Arial Narrow",sans-serif;margin:0}
+.card .meta{margin:8px 0 0;font-weight:600}
+.card .dot,td .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.sched{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;margin:10px 0 0;padding:10px 12px;background:var(--soft);border-left:4px solid var(--deep)}
+.sched b{font:700 22px "Barlow Condensed","Arial Narrow",sans-serif}
+.line{margin:12px 0 0;font-size:15px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 18px;margin:18px 0 4px}
+@media(max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi .v{font:700 30px/1 "Barlow Condensed","Arial Narrow",sans-serif}
+.kpi .l{font-size:14px;font-weight:600;margin:3px 0 5px;line-height:1.25}
+.kpi .m{font-size:12.5px;color:var(--dim);line-height:1.3}
+.mini{position:relative;height:6px;background:var(--trk);margin-top:6px;border-radius:3px}
+.mini>div{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
+.mini>i{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);transform:translateX(-1px)}
+.depth{display:grid;grid-template-columns:118px 1fr 48px;gap:10px;align-items:center;margin:7px 0;font-size:14px}
+.depth .trk{height:15px;background:var(--trk);position:relative;border-radius:2px}
+.depth .trk>div{height:100%;border-radius:2px}
+.depth b{font:700 17px "Barlow Condensed","Arial Narrow",sans-serif;text-align:right}
+i.avg{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+@media(max-width:800px){.two{grid-template-columns:1fr;gap:6px}.group>span{width:100%}}
+.bar{display:grid;grid-template-columns:150px 1fr 56px;align-items:center;gap:10px;font-size:14px;margin:6px 0}
+.bar .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.bar .n small{color:var(--dim);display:block;font-size:12px;line-height:1.1}
+.bar .trk{height:16px;background:var(--trk);border-radius:2px;display:flex;overflow:hidden}
+.bar .trk>div{height:100%;transition:width .35s}
+.bar .v{font:700 18px "Barlow Condensed","Arial Narrow",sans-serif;text-align:right}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--dim);margin:-4px 0 8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:10px;border-top:2px solid var(--deep)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font:600 16px "Barlow Condensed","Arial Narrow",sans-serif;color:var(--dim);text-align:left;padding:9px 8px;border-bottom:2px solid var(--deep);white-space:nowrap;user-select:none}
+#tbl th{cursor:pointer}
+th.num,td.num{text-align:right}
+th[aria-sort]{color:var(--ink)}
+th[aria-sort=descending]::after{content:" ▾"}th[aria-sort=ascending]::after{content:" ▴"}
+td{padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+#tbl tbody tr{cursor:pointer}
+tr.hl td{background:var(--hlo)}
+.tw.board{max-height:78vh;overflow:auto;overscroll-behavior-x:contain}
+#tbl{border-collapse:separate;border-spacing:0}
+#tbl thead th{position:sticky;top:0;z-index:2;background:var(--paper)}
+#tbl th.pn,#tbl td.pn{position:sticky;left:0;box-shadow:inset -1px 0 0 var(--line)}
+#tbl td.pn{z-index:1;background:var(--paper);padding-left:26px;font-weight:600;white-space:normal;width:168px;min-width:168px;line-height:1.25}
+#tbl tr.hl td.pn{background:var(--hlo)}
+#tbl th.pn{z-index:3;padding-left:26px}
+#tbl td.pn .dot{position:absolute;left:8px;top:14px;margin:0}
+#tbl td.pn small{display:block;font-weight:400;color:var(--dim);font-size:12.5px;line-height:1.15}
+#tbl td{vertical-align:top}
+.log td,.log th{font-size:13.5px;padding:7px 8px}
+.pill{display:inline-block;font:700 13px "Barlow Condensed","Arial Narrow",sans-serif;padding:1px 6px;border-radius:3px;border:1.5px solid var(--dim);min-width:38px;text-align:center}
+.pill.top{background:var(--deep);color:var(--on);border-color:var(--deep)}
+.up{color:var(--pr);font-weight:700}.dn{color:var(--gs);font-weight:700}
+.foot{color:var(--dim);font-size:13.5px;margin-top:44px;max-width:78ch;border-top:1px solid var(--line);padding-top:16px}
+.foot p{margin:0 0 12px}
+.foot b{color:var(--ink)}
+.empty{color:var(--dim);padding:20px 0}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.topnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--deep)}
+.topnav .in{max-width:1120px;margin:0 auto;padding:8px 18px 0;display:flex;gap:6px}
+.topnav button{flex:1 1 0;max-width:210px;border:0;border-radius:6px 6px 0 0;background:transparent;color:var(--on);cursor:pointer;padding:8px 12px 9px;text-align:left;display:flex;align-items:baseline;gap:8px;min-height:48px}
+.topnav button b{font:800 26px/1 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.3px}
+.topnav button span{font:600 14px/1.1 Barlow,system-ui,sans-serif}
+.topnav button[aria-selected=true]{background:var(--paper);color:var(--ink)}
+.topnav button:not([aria-selected=true]):hover{text-decoration:underline;text-underline-offset:4px}
+@media(max-width:560px){.topnav button span{display:none}.topnav button{justify-content:center;text-align:center}}
+.bio{margin:4px 0 0;color:var(--dim);font-size:15px}
+.minnote{font-size:12.5px;color:var(--dim);margin:6px 0 0}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<nav class="topnav" aria-label="Position"><div class="in" role="tablist">
+ <button role="tab" data-p="qb" aria-selected="true"><b>QB</b><span>Quarterbacks</span></button>
+ <button role="tab" data-p="rb" aria-selected="false"><b>RB</b><span>Running backs</span></button>
+ <button role="tab" data-p="wr" aria-selected="false"><b>WR</b><span>Wide receivers</span></button>
+ <button role="tab" data-p="te" aria-selected="false"><b>TE</b><span>Tight ends</span></button>
+</div></nav>
+<div class="wrap" role="tabpanel">
+<h1 id="h1">Who's under center</h1>
+<p class="sub" id="sub"></p>
+
+<div class="controls">
+ <div class="group" id="fm"><span>Stats</span><div class="seg" role="group" aria-label="Stat version"><button data-m="j" aria-pressed="true">Opponent-adjusted</button><button data-m="r" aria-pressed="false">Raw</button></div>
+  <p class="modehelp" id="modehelp"></p></div>
+ <div class="group" id="fa"><span>Archetype</span></div>
+ <div class="group" id="fc"><span>Conference</span></div>
+</div>
+<div class="count" id="count"></div>
+
+<section style="margin-top:28px">
+ <div class="tabs" id="views" role="group" aria-label="Chart view"></div>
+ <h2 id="ftitle"></h2>
+ <p class="note" id="fnote"></p>
+ <div class="field" id="fieldbox"><svg id="field" width="100%" role="img" aria-label="Player scatter plot"><g id="grid"></g><g id="dots"></g><g id="lbl"></g></svg><div id="tip" role="status"></div></div>
+</section>
+
+<section>
+ <h2>Scouting card</h2>
+ <p class="note" id="cardnote"></p>
+ <select id="pick"></select>
+ <div class="card" id="card"></div>
+</section>
+
+<section class="two">
+ <div><h2>Leaders</h2><p class="note">Top 10 in the current filter.</p><div class="tabs" id="tabs"></div><div class="legend" id="blegend"></div><div id="bars"></div><p class="minnote" id="minnote"></p></div>
+ <div><h2>Archetype mix by conference</h2><p class="note" id="mixnote"></p><svg id="mix" width="100%"></svg></div>
+</section>
+
+<section>
+ <h2>Full board</h2>
+ <p class="note" id="boardnote"></p>
+ <div class="tw board"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+</section>
+
+<div class="foot" id="foot"></div>
+</div>
+<script>
+const ALL=__DATA__;
+const SLOT=["var(--fg)","var(--gs)","var(--pr)","var(--pp)"],SLOTT=["var(--fgT)","var(--gsT)","var(--prT)","var(--ppT)"];
+const CF=["ACC","Big 12","Big Ten","SEC","Independent"];
+const $=s=>document.querySelector(s),NS="http://www.w3.org/2000/svg";
+const el=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a){const v=String(a[k]);if((k==="fill"||k==="stroke")&&v.startsWith("var("))e.style[k]=v;else e.setAttribute(k,v)}p&&p.appendChild(e);return e};
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const TY={epa:"epa",sr:"pct",cp:"pct",xrt:"pct",conv:"pct",stf:"pct",csh:"pct",tsh:"pct",rzs:"pct",t3s:"pct",
+ py:"yds",ry:"yds",recy:"yds",scr:"yds",ptd:"cnt",i:"cnt",sk:"cnt",rtd:"cnt",xp:"cnt",xr:"cnt",x:"cnt",tot:"cnt",rec:"cnt",rectd:"cnt",x20:"cnt",
+ ypc:"d1",ypt:"d1",ypr:"d1",cpg:"d1",tpg:"d1",car:"int",tgt:"int",rzt:"int"};
+const USAGE=new Set(["car","tgt","rzt","tsh","csh","rzs","t3s","tpg","cpg"]);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ord=n=>{const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])};
+const G={mode:"j",c:new Set(CF)},ST={};let pos=null,cfg,D,S;
+const col=a=>SLOT[cfg.arch.indexOf(a)]||"var(--dim)",colT=a=>SLOTT[cfg.arch.indexOf(a)]||"var(--paper)";
+const ok=v=>v!=null&&!Number.isNaN(v);
+const val=(d,k,m=G.mode)=>k==="sos"?d.sos:k==="tough"?-d.sos:(k in d.r)?d[m][k]:d[k];
+function fmt(k,v,m=G.mode){if(!ok(v))return"–";const t=TY[k];
+ if(t==="epa")return(v>0.0005?"+":v<-0.0005?"−":"")+Math.abs(v).toFixed(2);
+ if(t==="pct")return Math.min(100,Math.max(0,v)).toFixed(1)+"%";
+ if(t==="yds"){const r=Math.round(v);return(r<0?"−":"")+Math.abs(r).toLocaleString("en-US")}
+ if(t==="cnt")return m==="r"?String(Math.round(v)):(Math.abs(v)<0.05?"0.0":v.toFixed(1));
+ if(t==="d1")return v.toFixed(1);
+ if(t==="int")return String(Math.round(v));
+ return String(v)}
+const avg=(k,m=G.mode)=>{const vs=D.map(d=>val(d,k,m)).filter(ok);return vs.reduce((a,b)=>a+b,0)/Math.max(1,vs.length)};
+const rankOf=(d,k)=>1+D.filter(o=>ok(val(o,k))&&val(o,k)>val(d,k)).length;
+const games=n=>`${n} game${n===1?"":"s"}`;
+
+/* ---------- shared footnotes ---------- */
+const SRC="Source is cfbfastR's 2026 play-by-play, matched to ESPN's game rosters for names and positions, with 2024 and 2025 play-by-play used for the starting defensive ratings.";
+const ADJ=(what,who)=>`<p><b>How the opponent adjustment works.</b> Every college defense, FBS and FCS, gets its own rating for each stat on this page, built from all 2026 plays while controlling for the offenses it has faced and home field. Four weeks is a small sample, so each FBS defense's rating starts from its 2025 level, pulled well back toward average because defenses change a lot from year to year, and 2026 results move it from there. FCS teams are rated individually as well, starting from the FCS average. Plays in blowouts are left out of the ratings (a margin of more than 43 points in the 1st quarter, 37 in the 2nd, 27 in the 3rd, or 21 in the 4th). ${what} Adjusted totals estimate what he would have produced against an average FBS defense on the same number of plays. Schedule faced is the average rating of the ${who} on his plays. Adjustments stay modest this early because defensive ratings are still uncertain, and they will grow as the season adds data.</p>`;
+const ARCHP=(pool,rest,unit)=>`<p><b>Archetypes</b> come from a scoring model built on ${pool}. Each player gets four style scores, measured in standard deviations from the FBS average at his position, using opponent-adjusted numbers for performance and raw numbers for usage. ${rest} Rate stats are pulled toward the FBS average for players with few ${unit}. The top score is his archetype; if the second is within 0.25, both are shown. A weak fit means no score cleared +0.2.</p>`;
+const RECV_MEASURE=(who)=>`<p><b>How these are measured.</b> ${SRC} ${who} Numbers cover every game he has played. Targets are passes thrown his way; targets on interceptions aren't credited to anyone, because play-by-play rarely names the intended receiver. EPA per target is expected points added on those passes, catches and incompletions alike: how much each one changed his offense's expected points, given down, distance and field position. Success rate counts a target as successful when it gains half the yards to go on 1st down, 70% on 2nd, or all of them on 3rd and 4th. Target share is his share of his team's pass attempts in the games he played. Red-zone targets come inside the opponent's 20. Catch length is total yards on the catch, including yards after the catch. Fumbled catches count.</p>`;
+const RECV_DEF={epa:"EPA per target",sr:"Success rate",ypt:"Yards per target",cp:"Catch rate",ypr:"Yards per catch",x20:"20+ yard catches",recy:"Receiving yards",rec:"Receptions",rectd:"Receiving touchdowns",tsh:"Target share",rzt:"Red-zone targets",t3s:"Share of 3rd and 4th down targets"};
+const recvCfg=o=>Object.assign({
+ views:{usage:{l:"Usage vs. efficiency",x:"tsh",y:"ypt",xl:"Target share",yl:"Yards per target",avg:1,note:`His share of the team's targets runs left to right; yards per target climbs upward. Dots up and to the right get the ball a lot and do plenty with it. Dashed lines mark the average of all ${o.many} shown.`,
+   tip:d=>`${fmt("tsh",val(d,"tsh"))} of team targets (${d.r.tgt})<br>${fmt("ypt",val(d,"ypt"))} yds per target, ${fmt("recy",val(d,"recy"))} yds`},
+  sched:{l:"Schedule vs. results",x:"tough",y:"epa",yl:"EPA per target",zero:"Avg FBS pass D",note:"Right means tougher pass defenses faced; up means more expected points added per target. Dots up and to the right did it against good defenses."},
+  eff:{l:"Reliable vs. explosive",x:"sr",y:"ypr",xl:"Success rate",yl:"Yards per catch",avg:1,note:`Success rate on targets runs left to right; yards per catch climbs upward. Dashed lines mark the average of all ${o.many} shown.`}},
+ kpi:Object.entries(RECV_DEF),
+ line:(d,V)=>`${V("rec")} catches on ${d.r.tgt} targets for ${V("recy")} yds, ${V("rectd")} TD; ${d.r.rzt} red-zone targets; ${V("tsh")} of his team's targets${d.r.car?`; ${d.r.car} carr${d.r.car===1?"y":"ies"} for ${V("ry")} yds`:""}.`,
+ lead:{recy:{l:"Rec yds"},rec:{l:"Receptions"},rectd:{l:"Rec TD"},ypt:{l:"Yds/target"},epa:{l:"EPA/target"},cp:{l:"Catch rate"},x20:{l:"20+ yd catches"},tsh:{l:"Target share"},rzt:{l:"Red-zone targets"},sos:{l:"Toughest schedule"}},metric:"recy",
+ prof:{t:"Catch length profile",labels:["Under 5 yds","5 to 9","10 to 19","20 to 29","30+"],unit:"catches",how:"by total yards gained"},
+ log:{od:"Opp. pass D",e:"EPA/target",head:["Receiving"],row:g=>[g.tgt?`${g.rec}/${g.tgt}, ${g.recy} yds, ${g.rectd} TD${g.car?`; ${g.car} rush, ${g.ry} yds`:""}`:`No targets${g.car?`; ${g.car} rush, ${g.ry} yds`:""}`],
+  note:"Opp. pass D is that pass defense's national rank among {{N_FBS}} FBS teams, by adjusted EPA per pass attempt allowed. Adjusted EPA credits a tough defense (▲) and discounts a soft one (▼)."},
+ sosTxt:v=>`Opponents' pass defenses rate ${Math.abs(v).toFixed(3)} EPA per pass attempt ${v<0?"stingier":"softer"} than an average FBS pass defense.`,
+ sosWho:"pass defenses",vol:d=>d.r.tgt,volLbl:"targets",
+ def:D=>D.slice().sort((a,b)=>b.j.recy-a.j.recy)[0]},o);
+
+/* ---------- positions ---------- */
+const P={
+qb:{tab:"QB",full:"Quarterbacks",one:"quarterback",many:"quarterbacks",nameCol:"Quarterback",h1:"Who's under center",
+ sub:"Starting quarterbacks for every Power 4 program and Notre Dame, 2026 season. Built from every snap through Week {{WEEK}} (games through {{THROUGH}}), with each stat weighted for the defenses the quarterback has faced.",
+ help:"Adjusted numbers estimate what each QB would have put up against an average FBS defense on the same plays.",
+ arch:["Field General","Gunslinger","Pure Runner","Pocket Passer"],
+ views:{arm:{l:"Arm vs. legs",x:"py",y:"ry",xl:"Passing yds",yl:"Rushing yds",note:"Passing yards run left to right like yard lines; rushing yards climb upward. Tap a dot for the line. A colored ring marks a hybrid's second archetype.",
+   tip:d=>`${fmt("py",val(d,"py"))} pass yds, ${fmt("ptd",val(d,"ptd"))} TD<br>${fmt("ry",val(d,"ry"))} rush yds, ${fmt("rtd",val(d,"rtd"))} TD`},
+  sched:{l:"Schedule vs. results",x:"tough",y:"epa",yl:"EPA per play",zero:"Avg FBS defense",note:"Right means tougher defenses faced; up means more expected points added per play. Dots up and to the right did it against good defenses."},
+  eff:{l:"Efficient vs. explosive",x:"sr",y:"xrt",xl:"Success rate",yl:"Explosive rate",avg:1,note:"Success rate runs left to right; the share of plays that went for 20+ yard completions or 10+ yard runs climbs upward. Dashed lines mark the average of all starters shown."}},
+ kpi:[["epa","EPA per play"],["sr","Success rate"],["x","Explosive plays"],["xrt","Explosive rate"],["cp","Completion rate"],["ypc","Yards per completion"],["conv","3rd and 4th down conversion rate"],["xp","20+ yard completions"],["xr","10+ yard runs"],["i","Interceptions"],["sk","Sacks"],["tot","Total touchdowns"]],
+ line:(d,V,adj)=>`${V("py")} pass yds, ${V("ptd")} TD, ${V("i")} INT, ${V("cp")} completion rate; ${V("ry")} rush yds, ${V("rtd")} TD${adj?"":`; sacked ${d.r.sk} times for ${d.sky} yds`}.`,
+ lead:{py:{l:"Pass yds"},ptd:{l:"Pass TD"},ry:{l:"Rush yds"},rtd:{l:"Rush TD"},tot:{l:"Total TD"},x:{l:"Explosive plays",stack:[["xp","20+ yd completions","var(--ink)"],["xr","10+ yd runs","var(--pp)"]]},sr:{l:"Success rate"},epa:{l:"EPA/play"},i:{l:"INT"},sk:{l:"Sacks"},sos:{l:"Toughest schedule"}},metric:"py",
+ cols:[["n","Quarterback"],["epa","EPA/play",1],["sosr","Sched.",1,1],["py","Pass yds",1],["ptd","Pass TD",1],["i","INT",1],["cp","Cmp %",1],["ry","Rush yds",1],["rtd","Rush TD",1],["x","Explosive",1],["sr","Success %",1],["sk","Sacks",1],["gp","GP",1],["lab","Archetype"],["c","Conf"]],
+ prof:{t:"Completion length profile",labels:["Under 5 yds","5 to 9","10 to 19","20 to 29","30+"],unit:"completions",how:"by total yards gained"},
+ log:{od:"Opp. D",e:"EPA/play",head:["Passing","Rushing"],row:g=>[`${g.cmp}/${g.att}, ${g.py} yds, ${g.ptd} TD, ${g.i} INT`,`${g.car} for ${g.ry}, ${g.rtd} TD`],
+  note:"Opp. D is that defense's national rank among {{N_FBS}} FBS teams, by adjusted EPA per play allowed. Adjusted EPA credits a tough defense (▲) and discounts a soft one (▼)."},
+ sosTxt:v=>`Opponents' defenses rate ${Math.abs(v).toFixed(3)} EPA per play ${v<0?"stingier":"softer"} than an average FBS defense.`,
+ sosWho:"defenses",vol:d=>d.att,volLbl:"pass attempts",tag:()=>"",depth:()=>"",
+ def:D=>D.filter(d=>d.gp>=3).sort((a,b)=>b.j.epa-a.j.epa)[0],
+ foot:ADJ("A quarterback's adjusted numbers subtract, play by play, what the defense on the other side typically allows above or below an average FBS defense.","defenses")+
+  `<p><b>How these are measured.</b> ${SRC} The starter is the QB with the most pass attempts in his team's latest game; his numbers cover every game he has played. EPA per play is expected points added: how much each dropback or run changed his offense's expected points, given down, distance and field position. Explosive plays are completions of 20+ yards and runs of 10+ yards. Success rate counts a play as successful when it gains half the yards to go on 1st down, 70% on 2nd, or all of them on 3rd and 4th, and covers every pass attempt, sack, and run by the QB (kneel-downs excluded). Rushing yards exclude sacks; fumbled runs count. Completion length is total yards on the catch, including yards after the catch.</p>`+
+  ARCHP("all {{QB_POOL}} FBS starting quarterbacks with 15+ attempts","Field General: completion rate, pass success rate, 3rd/4th-down conversion rate, low interception and sack rates. Gunslinger: rate of 20+ yard completions, yards per completion, interception rate. Pure Runner: rushing yards per game, share of plays that are runs, 10+ yard runs per game, rush success rate. Pocket Passer: pass volume, low run share, low sack rate.","attempts")+
+  `<p><b>Not included.</b> PFF grades are subscription-only. ESPN QBR and Strength of Record could not be read from ESPN's pages. Air yards need catch-location data that college play-by-play does not record.</p>`},
+rb:{tab:"RB",full:"Running backs",one:"running back",many:"running backs",nameCol:"Running back",h1:"Who's in the backfield",
+ sub:"Running backs for every Power 4 program and Notre Dame, 2026 season: each team's lead back, plus any back averaging 6+ carries a game. Built from every snap through Week {{WEEK}} (games through {{THROUGH}}), with each stat weighted for the defenses the back has faced.",
+ help:"Adjusted numbers estimate what each back would have put up against an average FBS defense on the same carries and targets.",
+ arch:["Workhorse","Home-Run Hitter","Receiving Back","Grinder"],
+ views:{ground:{l:"Ground vs. air",x:"ry",y:"recy",xl:"Rushing yds",yl:"Receiving yds",note:"Rushing yards run left to right like yard lines; receiving yards climb upward. Tap a dot for the line. A colored ring marks a hybrid's second archetype.",
+   tip:d=>`${fmt("ry",val(d,"ry"))} rush yds on ${d.r.car} carries, ${fmt("rtd",val(d,"rtd"))} TD<br>${fmt("rec",val(d,"rec"))} catches for ${fmt("recy",val(d,"recy"))} yds`},
+  sched:{l:"Schedule vs. results",x:"tough",y:"epa",yl:"EPA per carry",zero:"Avg FBS run D",note:"Right means tougher run defenses faced; up means more expected points added per carry. Dots up and to the right did it against good defenses."},
+  eff:{l:"Efficient vs. explosive",x:"sr",y:"xrt",xl:"Success rate",yl:"10+ yd run rate",avg:1,note:"Success rate runs left to right; the share of carries that went 10+ yards climbs upward. Dashed lines mark the average of all backs shown."}},
+ kpi:[["epa","EPA per carry"],["sr","Success rate"],["ypc","Yards per carry"],["xrt","10+ yard run rate"],["xr","10+ yard runs"],["stf","Stuffed rate (lower is better)"],["ry","Rushing yards"],["rtd","Rushing touchdowns"],["rec","Receptions"],["recy","Receiving yards"],["scr","Scrimmage yards"],["csh","Share of team carries"]],
+ line:(d,V)=>`${V("ry")} rush yds on ${d.r.car} carries (${V("ypc")} a carry), ${V("rtd")} TD; ${V("rec")} catches on ${d.r.tgt} targets for ${V("recy")} yds, ${V("rectd")} TD; ${V("scr")} scrimmage yds.`,
+ lead:{ry:{l:"Rush yds"},rtd:{l:"Rush TD"},ypc:{l:"Yds/carry"},epa:{l:"EPA/carry"},sr:{l:"Success rate"},xr:{l:"10+ yd runs"},recy:{l:"Rec yds"},scr:{l:"Scrimmage yds"},tot:{l:"Total TD"},sos:{l:"Toughest schedule"}},metric:"ry",
+ cols:[["n","Running back"],["epa","EPA/carry",1],["sosr","Sched.",1,1],["car","Carries",1],["ry","Rush yds",1],["ypc","YPC",1],["rtd","Rush TD",1],["sr","Success %",1],["xr","10+ runs",1],["stf","Stuffed %",1,1],["rec","Rec",1],["recy","Rec yds",1],["scr","Scrim yds",1],["gp","GP",1],["lab","Archetype"],["c","Conf"]],
+ prof:{t:"Carry length profile",labels:["Loss or no gain","1 to 3 yds","4 to 9","10 to 19","20+"],unit:"carries",how:"by yards gained"},
+ log:{od:"Opp. run D",e:"EPA/carry",head:["Rushing","Receiving"],row:g=>[g.car?`${g.car} for ${g.ry}, ${g.rtd} TD`:"No carries",g.tgt?`${g.rec}/${g.tgt}, ${g.recy} yds, ${g.rectd} TD`:"–"],
+  note:"Opp. run D is that run defense's national rank among {{N_FBS}} FBS teams, by adjusted EPA per carry allowed. Adjusted EPA credits a tough defense (▲) and discounts a soft one (▼)."},
+ sosTxt:v=>`Opponents' run defenses rate ${Math.abs(v).toFixed(3)} EPA per carry ${v<0?"stingier":"softer"} than an average FBS run defense.`,
+ sosWho:"run defenses",vol:d=>d.r.car,volLbl:"carries",tag:d=>` RB${d.dp}`,
+ depth:d=>d.dp===1?`${d.t}'s lead back by carries.`:`${d.t}'s No. ${d.dp} back by carries.`,
+ def:D=>D.slice().sort((a,b)=>b.j.ry-a.j.ry)[0],
+ foot:ADJ("A back's adjusted numbers subtract, play by play, what the defense on the other side typically allows above or below an average FBS defense: its run-defense ratings on his carries and its pass-defense ratings on passes thrown his way.","run defenses")+
+  `<p><b>How these are measured.</b> ${SRC} Backs shown are each team's lead back by carries plus any back averaging 6+ carries per team game; numbers cover every game he has played. EPA per carry is expected points added: how much each run changed his offense's expected points, given down, distance and field position. Success rate counts a run as successful when it gains half the yards to go on 1st down, 70% on 2nd, or all of them on 3rd and 4th. Stuffed runs are carries for no gain or a loss. Fumbled runs count. Receiving numbers cover passes thrown his way; targets on interceptions aren't credited to anyone, because play-by-play rarely names the intended receiver. Carry length is yards gained on the run.</p>`+
+  ARCHP("all {{RB_POOL}} FBS running backs with 20+ carries","Workhorse: carries per game, share of his team's carries, touches per game. Home-Run Hitter: rate of 10+ yard runs, yards per carry. Receiving Back: targets per game, share of team targets, receiving yards per game. Grinder: rush success rate, avoiding stuffs, share of his team's red-zone carries.","carries")+
+  `<p><b>Not included.</b> Blocking and pass protection don't show up in play-by-play, so archetypes describe only what a back does with the ball. Yards before and after contact aren't recorded in college play-by-play.</p>`},
+wr:recvCfg({tab:"WR",full:"Wide receivers",one:"receiver",many:"receivers",nameCol:"Receiver",h1:"Who's out wide",
+ sub:"Wide receivers for every Power 4 program and Notre Dame, 2026 season: each team's most-targeted receiver, plus any receiver averaging 3+ targets a game. Built from every snap through Week {{WEEK}} (games through {{THROUGH}}), with each stat weighted for the pass defenses the receiver has faced.",
+ help:"Adjusted numbers estimate what each receiver would have put up against an average FBS pass defense on the same targets.",
+ arch:["Alpha","Deep Threat","Red-Zone Threat","Possession"],
+ cols:[["n","Receiver"],["epa","EPA/target",1],["sosr","Sched.",1,1],["tgt","Targets",1],["rec","Rec",1],["recy","Rec yds",1],["rectd","TD",1],["ypt","Yds/tgt",1],["ypr","Yds/catch",1],["cp","Catch %",1],["sr","Success %",1],["x20","20+",1],["tsh","Tgt share",1],["rzt","RZ tgts",1],["gp","GP",1],["lab","Archetype"],["c","Conf"]],
+ tag:d=>` WR${d.dp}`,depth:d=>`${d.t}'s No. ${d.dp} wide receiver by targets.`,
+ foot:ADJ("A receiver's adjusted numbers subtract, target by target, what the defense on the other side typically allows above or below an average FBS pass defense.","pass defenses")+
+  RECV_MEASURE("Receivers shown are each team's most-targeted wide receiver plus any wide receiver averaging 3+ targets per team game.")+
+  ARCHP("all {{WR_POOL}} FBS wide receivers with 10+ targets","Alpha: target share, targets per game, receiving yards per game. Deep Threat: yards per catch, rate of 20+ yard catches. Red-Zone Threat: share of team red-zone targets, red-zone targets per game, touchdowns per target. Possession: catch rate, success rate per target, share of team 3rd- and 4th-down targets.","targets")+
+  `<p><b>Not included.</b> Air yards, yards after catch, drops and route data need charting that college play-by-play doesn't record. Catch rate reflects the quarterback's accuracy as much as the receiver's hands.</p>`}),
+te:recvCfg({tab:"TE",full:"Tight ends",one:"tight end",many:"tight ends",nameCol:"Tight end",h1:"Who's in-line",
+ sub:"Tight ends for every Power 4 program and Notre Dame, 2026 season: each team's most-targeted tight end (4+ targets), plus any tight end averaging 2+ targets a game. Built from every snap through Week {{WEEK}} (games through {{THROUGH}}), with each stat weighted for the pass defenses the tight end has faced.",
+ help:"Adjusted numbers estimate what each tight end would have put up against an average FBS pass defense on the same targets.",
+ arch:["Receiving Weapon","Seam Stretcher","Red-Zone Target","Safety Valve"],
+ cols:[["n","Tight end"],["epa","EPA/target",1],["sosr","Sched.",1,1],["tgt","Targets",1],["rec","Rec",1],["recy","Rec yds",1],["rectd","TD",1],["ypt","Yds/tgt",1],["ypr","Yds/catch",1],["cp","Catch %",1],["sr","Success %",1],["x20","20+",1],["tsh","Tgt share",1],["rzt","RZ tgts",1],["gp","GP",1],["lab","Archetype"],["c","Conf"]],
+ tag:d=>` TE${d.dp}`,depth:d=>`${d.t}'s No. ${d.dp} tight end by targets.`,
+ foot:ADJ("A tight end's adjusted numbers subtract, target by target, what the defense on the other side typically allows above or below an average FBS pass defense.","pass defenses")+
+  RECV_MEASURE("Tight ends shown are each team's most-targeted tight end when he has 4+ targets, plus any tight end averaging 2+ targets per team game.{{TE_MISSING}}")+
+  ARCHP("all {{TE_POOL}} FBS tight ends with 6+ targets","Receiving Weapon: target share, targets per game, receiving yards per game. Seam Stretcher: yards per catch, rate of 20+ yard catches. Red-Zone Target: share of team red-zone targets, red-zone targets per game, touchdowns per target. Safety Valve: catch rate, success rate per target, share of team 3rd- and 4th-down targets.","targets")+
+  `<p><b>Not included.</b> Blocking doesn't show up in play-by-play, so archetypes describe only the receiving side of the job. Air yards, yards after catch and drops need charting that college play-by-play doesn't record.</p>`})};
+
+/* ---------- controls ---------- */
+function chips(g,list,getSet,color){g.querySelectorAll("button").forEach(b=>b.remove());list.forEach(v=>{const b=document.createElement("button");b.className="chip";b.setAttribute("aria-pressed",getSet().has(v));
+ b.innerHTML=(color?`<i style="background:${col(v)}"></i>`:"")+esc(v);b.onclick=()=>{const s=getSet();
+ if(s.size===list.length){s.clear();s.add(v)}else if(s.has(v)){s.delete(v);if(!s.size)list.forEach(x=>s.add(x))}else s.add(v);
+ [...g.querySelectorAll("button")].forEach((x,i)=>x.setAttribute("aria-pressed",s.has(list[i])));render(true)};g.appendChild(b)})}
+const F=()=>D.filter(d=>d.as.some(a=>S.a.has(a))&&G.c.has(d.c));
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{G.mode=b.dataset.m;document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));render(true)});
+function tabset(id,obj,key,cb){const g=$(id);g.innerHTML="";Object.entries(obj).forEach(([k,o])=>{const b=document.createElement("button");b.className="chip";b.textContent=o.l;b.setAttribute("aria-pressed",k===S[key]);
+ b.onclick=()=>{S[key]=k;[...g.children].forEach(x=>x.setAttribute("aria-pressed",x===b));cb()};g.appendChild(b)})}
+
+/* ---------- scatter on the field ---------- */
+function ext(k){let lo=Infinity,hi=-Infinity;D.forEach(d=>["r","j"].forEach(m=>{const v=val(d,k,m);if(!ok(v))return;if(v<lo)lo=v;if(v>hi)hi=v}));return[lo,hi]}
+function nstep(span,n){const r=span/n,p=Math.pow(10,Math.floor(Math.log10(r))),f=r/p;return(f<1.5?1:f<2.25?2:f<3.5?2.5:f<7.5?5:10)*p}
+function dom(k){const[lo,hi]=ext(k),t=TY[k],sp=(hi-lo)||1;
+ if(k==="tough"){const p=sp*.08;return[lo-p,hi+p]}
+ if((t==="yds"||t==="cnt"||t==="int")&&lo>=0)return[-sp*.03,hi+sp*.07];
+ return[lo-sp*.06,hi+sp*.06]}
+function tickLbl(k,v,step){const t=TY[k],dec=(String(+step.toPrecision(6)).split(".")[1]||"").length;
+ if(t==="epa")return(v>1e-9?"+":v<-1e-9?"−":"")+Math.abs(v).toFixed(Math.max(1,dec));
+ if(t==="pct")return(+v.toFixed(dec))+"%";
+ if(t==="yds"||t==="int"||t==="cnt"){const r=Math.round(v);return(r<0?"−":"")+Math.abs(r).toLocaleString("en-US")}
+ return v.toFixed(dec)}
+const dots=new Map();let anim=null;
+function tipHTML(d){const V=cfg.views[S.view];let body;
+ if(V.x==="tough")body=`${cfg.sosWho[0].toUpperCase()+cfg.sosWho.slice(1)} faced: ${ord(d.sosr)} toughest of ${D.length}<br>${V.yl} ${fmt("epa",val(d,"epa"))}${G.mode==="j"?` (raw ${fmt("epa",d.r.epa,"r")})`:""}`;
+ else if(V.tip)body=V.tip(d);else body=`${V.xl} ${fmt(V.x,val(d,V.x))}<br>${V.yl} ${fmt(V.y,val(d,V.y))}`;
+ return`<b>${esc(d.n)}</b><small>${esc(d.t)}${cfg.tag(d)}, ${esc(d.lab)}</small>${body}`}
+function field(animate){
+ const svg=$("#field"),box=$("#fieldbox"),W=box.clientWidth,H=Math.round(W<600?Math.max(380,Math.min(460,W*1.05)):Math.max(320,Math.min(500,W*.62)));
+ svg.setAttribute("height",H);svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.setAttribute("aria-label",`${cfg.full}: ${cfg.views[S.view].l}`);
+ const V=cfg.views[S.view],g=$("#grid");g.innerHTML="";$("#lbl").innerHTML="";
+ $("#ftitle").textContent=V.l;$("#fnote").textContent=V.note;
+ const m={l:48,r:14,t:18,b:36},[x0,x1]=dom(V.x),[y0,y1]=dom(V.y);
+ const X=v=>m.l+(v-x0)/(x1-x0)*(W-m.l-m.r),Y=v=>H-m.b-(v-y0)/(y1-y0)*(H-m.t-m.b);
+ const chalk="#ffffff",faint="rgba(255,255,255,.3)",bold="rgba(255,255,255,.75)",narrow=W<600;
+ const T=(x,y,txt,a={})=>{const t=el("text",Object.assign({x,y,fill:chalk,"font-size":13,"font-weight":600},a),g);t.textContent=txt;return t};
+ const sched=V.x==="tough";
+ if(sched){el("line",{x1:X(0),x2:X(0),y1:m.t,y2:H-m.b,stroke:bold,"stroke-width":2},g);
+  T(X(0)-6,m.t+14,V.zero,{"text-anchor":"end"});T(m.l+4,H-12,"← Easier");T(W-m.r-4,H-12,"Tougher →",{"text-anchor":"end"})}
+ else{const sx=nstep(x1-x0,narrow?4:8);for(let i=Math.ceil(x0/sx);i*sx<=x1+1e-9;i++){const v=i*sx,z=Math.abs(v)<1e-9;
+   el("line",{x1:X(v),x2:X(v),y1:m.t,y2:H-m.b,stroke:z?bold:faint,"stroke-width":z?2:1},g);T(X(v),H-12,tickLbl(V.x,v,sx),{"text-anchor":"middle"})}}
+ const sy=nstep(y1-y0,narrow?5:7);for(let i=Math.ceil(y0/sy);i*sy<=y1+1e-9;i++){const v=i*sy,z=Math.abs(v)<1e-9;
+  el("line",{x1:m.l,x2:W-m.r,y1:Y(v),y2:Y(v),stroke:z?bold:faint,"stroke-width":z?2:1,"stroke-dasharray":z?"":"2 6"},g);T(m.l-8,Y(v)+4,tickLbl(V.y,v,sy),{"text-anchor":"end","font-weight":500})}
+ if(V.avg){const ax=avg(V.x),ay=avg(V.y);el("line",{x1:X(ax),x2:X(ax),y1:m.t,y2:H-m.b,stroke:"rgba(255,255,255,.8)","stroke-width":1.5,"stroke-dasharray":"6 5"},g);
+  el("line",{x1:m.l,x2:W-m.r,y1:Y(ay),y2:Y(ay),stroke:"rgba(255,255,255,.8)","stroke-width":1.5,"stroke-dasharray":"6 5"},g)}
+ if(!sched)T(W-m.r-4,m.t+14,V.xl+" →",{"text-anchor":"end",opacity:.85});T(m.l+6,m.t+14,"↑ "+V.yl,{opacity:.85});
+ const show=new Set(F().map(d=>d.k)),layer=$("#dots"),tip=$("#tip"),targets=[],R0=D.length>100&&narrow?5.5:6.5;
+ D.forEach(d=>{let o=dots.get(d.k);
+  if(!o){const c=el("circle",{class:"pl",r:R0,tabindex:0,role:"button","aria-label":d.n},layer);o={c,x:null,y:null};dots.set(d.k,o);
+   const showTip=()=>{tip.innerHTML=tipHTML(d);const bw=box.clientWidth;let tx=o.x+14,ty=o.y-12;if(tx>bw-250)tx=Math.max(4,o.x-254);if(ty>box.clientHeight-110)ty=box.clientHeight-110;tip.style.left=tx+"px";tip.style.top=Math.max(4,ty)+"px";tip.style.opacity=1};
+   c.addEventListener("mouseenter",showTip);c.addEventListener("focus",showTip);
+   c.addEventListener("mouseleave",()=>tip.style.opacity=0);c.addEventListener("blur",()=>tip.style.opacity=0);
+   c.addEventListener("click",e=>{e.stopPropagation();select(d.k,false);showTip()});
+   c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(d.k,false);showTip()}})}
+  const on=d.k===S.sel,vis=show.has(d.k);
+  o.c.style.fill=col(d.a);
+  o.c.style.stroke=on?"#ffffff":(d.a2?col(d.a2):"#ffffff");o.c.setAttribute("stroke-width",on?4:(d.a2?3.2:1.6));
+  o.c.setAttribute("r",on?10:R0);o.c.style.display=vis?"":"none";o.c.setAttribute("tabindex",vis?0:-1);
+  const xv=val(d,V.x),yv=val(d,V.y);targets.push([o,X(ok(xv)?xv:x0),Y(ok(yv)?yv:y0)])});
+ const sel=S.sel&&dots.get(S.sel);if(sel)layer.appendChild(sel.c);
+ if(anim)cancelAnimationFrame(anim);
+ const place=t=>{targets.forEach(([o,tx,ty])=>{const fx=o.x==null?tx:o.x0,fy=o.y==null?ty:o.y0;o.x=fx+(tx-fx)*t;o.y=fy+(ty-fy)*t;o.c.setAttribute("cx",o.x);o.c.setAttribute("cy",o.y)})};
+ targets.forEach(([o])=>{o.x0=o.x;o.y0=o.y});
+ const label=()=>{if(!sel||!show.has(S.sel))return;const sd=D.find(x=>x.k===S.sel),tx=sel.x,ty=sel.y,right=tx<W-150;
+  const t=el("text",{x:right?tx+14:tx-14,y:ty+5,"text-anchor":right?"start":"end",fill:"#ffffff","font-size":16,"font-weight":700,stroke:"rgba(13,38,24,.85)","stroke-width":3.5,"paint-order":"stroke"},$("#lbl"));t.textContent=sd.n};
+ if(!animate||RM){place(1);label();return}
+ const t0=performance.now(),dur=520,ease=t=>1-Math.pow(1-t,3);
+ const step=now=>{const t=Math.min(1,(now-t0)/dur);place(ease(t));if(t<1)anim=requestAnimationFrame(step);else{anim=null;label()}};anim=requestAnimationFrame(step)}
+$("#fieldbox").addEventListener("click",()=>$("#tip").style.opacity=0);
+
+/* ---------- scouting card ---------- */
+function pickList(){const p=$("#pick");const sur=n=>n.replace(/\s+(Jr\.|Sr\.|II|III|IV)$/,"").split(" ").slice(-1)[0];
+ p.innerHTML=D.slice().sort((a,b)=>sur(a.n).localeCompare(sur(b.n))||a.n.localeCompare(b.n)).map(d=>`<option value="${esc(d.k)}">${esc(d.n)}, ${esc(d.t)}</option>`).join("");
+ p.setAttribute("aria-label",`Choose a ${cfg.one}`);p.onchange=()=>select(p.value,false)}
+function card(){const d=D.find(x=>x.k===S.sel);if(!d)return;$("#pick").value=d.k;const adj=G.mode==="j",N=D.length,V=k=>fmt(k,val(d,k));
+ const kp=cfg.kpi.map(([k,l],idx)=>{const v=val(d,k),a=avg(k),vs=D.map(o=>val(o,k)).filter(ok),lo=Math.min(...vs),hi=Math.max(...vs),sp=hi-lo||1;
+  const extra=idx===0?`<br>${ord(rankOf(d,k))} of ${N}`:"",raw=adj&&!USAGE.has(k)?`, raw ${fmt(k,d.r[k],"r")}`:"";
+  const w=ok(v)?Math.max(0,Math.min(100,(v-lo)/sp*100)):0;
+  return`<div class="kpi"><div class="v">${fmt(k,v)}</div><div class="l">${l}</div><div class="m">Avg ${fmt(k,a)}${raw}${extra}</div>
+  <div class="mini"><div style="width:${w}%;background:${col(d.a)}"></div><i style="left:${(a-lo)/sp*100}%"></i></div></div>`}).join("");
+ const fp=cfg.arch.map((l,i)=>{const v=d.sc[i],w=Math.min(Math.abs(v),2.2)/2.2*50;return`<div class="depth"><span>${esc(l)}</span><div class="trk"><i class="avg" style="left:50%"></i><div style="position:absolute;top:0;bottom:0;${v>=0?"left:50%":"right:50%"};width:${w}%;background:${col(l)}"></div></div><b>${v>0?"+":v<0?"−":""}${Math.abs(v).toFixed(1)}</b></div>`}).join("");
+ if(!D._cd)D._cd=cfg.prof.labels.map((_,i)=>D.reduce((a,o)=>a+o.cd[i]/Math.max(1,o.cd.reduce((x,y)=>x+y,0)),0)/D.length*100);
+ const ta=d.cd.reduce((a,b)=>a+b,0),mx=Math.max(...d.cd.map(c=>c/Math.max(1,ta)*100),...D._cd)*1.08;
+ const cdh=cfg.prof.labels.map((l,i)=>{const p=ta?d.cd[i]/ta*100:0;return`<div class="depth"><span>${l}</span><div class="trk"><div style="width:${p/mx*100}%;background:${col(d.a)}"></div><i class="avg" style="left:${D._cd[i]/mx*100}%"></i></div><b>${p.toFixed(0)}%</b></div>`}).join("");
+ const hl=h=>h<0?"at":"vs.",ne=h=>h===0?" (neutral)":"";
+ const log=d.g.map(g=>{const pill=g.od==="FCS"?`<span class="pill">FCS</span>`:`<span class="pill${g.od<=25?" top":""}">#${g.od}</span>`,both=ok(g.e)&&ok(g.ea),diff=both?g.ea-g.e:0;
+  return`<tr><td>${g.dt}</td><td>${hl(g.h)} ${esc(g.o)}${ne(g.h)}</td><td>${pill}</td>${cfg.log.row(g).map(c=>`<td class="num">${c}</td>`).join("")}<td class="num">${fmt("epa",g.e,"r")}</td><td class="num">${fmt("epa",g.ea,"j")} <span class="${diff>0.0005?"up":diff<-0.0005?"dn":""}">${diff>0.0005?"▲":diff<-0.0005?"▼":""}</span></td></tr>`}).join("");
+ const bio=[d.b?esc(d.b)+".":"",cfg.depth(d)].filter(Boolean).join(" ");
+ $("#card").innerHTML=`<p class="nm">${esc(d.n)}</p>
+ <p class="meta"><span class="dot" style="background:${col(d.a)}"></span>${esc(d.lab)}, ${esc(d.t)} (${esc(d.c)}), ${games(d.gp)}</p>${bio?`<p class="bio">${bio}</p>`:""}
+ <div class="sched"><b>Schedule: ${ord(d.sosr)} toughest of ${N}</b><span class="note" style="margin:0">${cfg.sosTxt(d.sos)}</span></div>
+ <p class="line">${adj?"Adjusted":"Raw"} line: ${cfg.line(d,V,adj)}</p>
+ <div class="kpis">${kp}</div>
+ <h3>Style fingerprint</h3><p class="note" style="margin-bottom:8px">How far each style score sits from the FBS average for his position. The center line is average.</p>${fp}
+ <h3>${cfg.prof.t}</h3><p class="note" style="margin-bottom:8px">Share of ${ta} ${cfg.prof.unit} ${cfg.prof.how}.</p>${cdh}
+ <h3>Game by game</h3><p class="note" style="margin-bottom:0">${cfg.log.note}</p>
+ <div class="tw log"><table><thead><tr><th>Date</th><th>Opponent</th><th>${cfg.log.od}</th>${cfg.log.head.map(h=>`<th class="num">${h}</th>`).join("")}<th class="num">${cfg.log.e}</th><th class="num">Adjusted</th></tr></thead><tbody>${log}</tbody></table></div>`}
+function select(k,scroll){S.sel=k;field(false);card();table(F());if(scroll)$("#card").scrollIntoView({behavior:RM?"auto":"smooth",block:"start"})}
+
+/* ---------- leaders ---------- */
+function bars(rows){const k=S.metric,M=cfg.lead[k],box=$("#bars");$("#minnote").textContent="";
+ if(!rows.length){box.innerHTML=`<p class="empty">No ${cfg.many} match these filters. Tap a highlighted filter to clear it.</p>`;$("#blegend").innerHTML="";return}
+ let top,w,lab;
+ if(k==="sos"){top=rows.slice().sort((a,b)=>a.sos-b.sos).slice(0,10);const hi=Math.max(...D.map(d=>d.sos)),lo=Math.min(...D.map(d=>d.sos));w=d=>(hi-d.sos)/((hi-lo)||1)*100;lab=d=>ord(d.sosr)}
+ else{let pool=rows;const t=TY[k];
+  if(t==="epa"||t==="pct"||t==="d1"){const vs=D.map(cfg.vol).sort((a,b)=>a-b),min=Math.round(vs[Math.floor(vs.length/2)]/2);pool=rows.filter(d=>cfg.vol(d)>=min);$("#minnote").textContent=`Rate leaders need at least ${min} ${cfg.volLbl}, half the median among ${cfg.many} shown.`}
+  top=pool.slice().sort((a,b)=>val(b,k)-val(a,k)).slice(0,10);const vs=top.map(d=>val(d,k)),mx=Math.max(...vs),mn=Math.min(0,...vs);w=d=>(val(d,k)-mn)/((mx-mn)||1)*100;lab=d=>fmt(k,val(d,k))}
+ $("#blegend").innerHTML=M.stack?M.stack.map(([,l,c])=>`<span><i style="background:${c}"></i>${l}</span>`).join(""):k==="sos"?`<span>Ranked by how stingy his opponents' ${cfg.sosWho} rate, among all ${D.length}.</span>`:"";
+ box.innerHTML=top.map(d=>{let fill;
+  if(M.stack){const tot=M.stack.reduce((a,[s])=>a+Math.max(0,val(d,s)),0)||1,W=w(d);fill=M.stack.map(([s,,c])=>`<div style="width:${W*Math.max(0,val(d,s))/tot}%;background:${c}"></div>`).join("")}
+  else fill=`<div style="width:${Math.max(0,w(d))}%;background:${col(d.a)}"></div>`;
+  return`<div class="bar"><div class="n" data-k="${esc(d.k)}" tabindex="0">${esc(d.n)}<small>${esc(d.t)}${cfg.tag(d)}${d.gp<3?`, ${games(d.gp)}`:""}</small></div><div class="trk">${fill}</div><div class="v">${lab(d)}</div></div>`}).join("");
+ box.querySelectorAll(".n").forEach(e=>{e.onclick=()=>select(e.dataset.k,true);e.onkeydown=ev=>{if(ev.key==="Enter")select(e.dataset.k,true)}})}
+
+/* ---------- archetype mix ---------- */
+function mix(rows){const svg=$("#mix");svg.innerHTML="";const W=svg.clientWidth||400,rowH=42,cs=CF.filter(c=>G.c.has(c)&&D.some(d=>d.c===c)),H=cs.length*rowH+8;
+ svg.setAttribute("height",H);svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+ const labs=cs.map((c,i)=>{const t=el("text",{x:0,y:i*rowH+26,fill:"var(--ink)","font-size":17,"font-weight":600},svg);t.textContent=c;return t});
+ let tw=0;labs.forEach(t=>{try{tw=Math.max(tw,t.getComputedTextLength())}catch(e){tw=Math.max(tw,90)}});
+ const lw=Math.ceil(Math.max(60,tw))+12,mx=Math.max(1,...CF.map(c=>D.filter(d=>d.c===c).reduce((s,d)=>s+d.as.length,0)));
+ cs.forEach((c,i)=>{const yy=i*rowH+6;let x0=lw;
+  cfg.arch.forEach(a=>{if(!S.a.has(a))return;const n=rows.filter(d=>d.c===c&&d.as.includes(a)).length;if(!n)return;const w=n/mx*(W-lw-4);
+   const rc=el("rect",{x:x0,y:yy+4,width:Math.max(0,w-2),height:24,fill:col(a),rx:2},svg);el("title",{},rc).textContent=`${c}: ${n} ${a}${n>1?"s":""}`;
+   if(w>18){const tt=el("text",{x:x0+w/2-1,y:yy+21,"text-anchor":"middle",fill:colT(a),"font-size":15,"font-weight":700},svg);tt.textContent=n}x0+=w})})}
+
+/* ---------- full board ---------- */
+function header(){$("#tbl thead").innerHTML="<tr>"+cfg.cols.map(([k,l,n])=>`<th data-k="${k}" class="${n?"num":k==="n"?"pn":""}" tabindex="0" scope="col">${l}</th>`).join("")+"</tr>";
+ document.querySelectorAll("#tbl th").forEach(th=>{const go=()=>{const k=th.dataset.k,c=cfg.cols.find(x=>x[0]===k);if(S.sort===k)S.dir*=-1;else{S.sort=k;S.dir=c[2]?(c[3]?1:-1):1}table(F())};th.onclick=go;th.onkeydown=e=>{if(e.key==="Enter")go()}})}
+function table(rows){const k=S.sort,sv=d=>{const v=val(d,k);return typeof v==="string"?v.toLowerCase():ok(v)?v:-Infinity};
+ rows=rows.slice().sort((a,b)=>(sv(a)>sv(b)?1:sv(a)<sv(b)?-1:0)*S.dir);
+ document.querySelectorAll("#tbl th").forEach(th=>th.dataset.k===k?th.setAttribute("aria-sort",S.dir>0?"ascending":"descending"):th.removeAttribute("aria-sort"));
+ $("#tbl tbody").innerHTML=rows.map(d=>`<tr data-k="${esc(d.k)}" class="${d.k===S.sel?"hl":""}" tabindex="0">`+cfg.cols.map(([c,,n])=>{
+  if(c==="n")return`<td class="pn"><span class="dot" style="background:${col(d.a)}"></span>${esc(d.n)}<small>${esc(d.t)}${cfg.tag(d)}${d.gp<3?`, ${games(d.gp)}`:""}</small></td>`;
+  if(c==="lab")return`<td><span class="dot" style="background:${col(d.a)}"></span>${esc(d.lab)}</td>`;
+  if(!n)return`<td>${esc(d[c])}</td>`;
+  if(c==="gp"||c==="sosr")return`<td class="num">${d[c]}</td>`;
+  return`<td class="num">${fmt(c,val(d,c))}</td>`}).join("")+"</tr>").join("")||`<tr><td colspan="${cfg.cols.length}" class="empty">No ${cfg.many} match these filters. Tap a highlighted filter to clear it.</td></tr>`;
+ $("#tbl tbody").querySelectorAll("tr[data-k]").forEach(r=>{r.onclick=()=>select(r.dataset.k,true);r.onkeydown=e=>{if(e.key==="Enter")select(r.dataset.k,true)}})}
+
+/* ---------- position tabs + render ---------- */
+function render(animate){const r=F();$("#modehelp").textContent=G.mode==="j"?cfg.help:"Raw numbers are straight totals, with no credit or discount for the defenses faced.";
+ $("#count").innerHTML=`<b>${r.length}</b> of ${D.length} ${cfg.many} shown`;
+ field(animate);bars(r);mix(r);table(r);card()}
+function setPos(p,push){if(p===pos)return;pos=p;cfg=P[p];D=ALL[p];
+ if(!D._prep){D.forEach(d=>{d.weak=d.lab.includes("weak fit");d.as=d.weak?[d.a]:d.lab.split(" / ");d.a2=d.as[1]||null});D._prep=1}
+ if(!ST[p])ST[p]={a:new Set(cfg.arch),view:Object.keys(cfg.views)[0],metric:cfg.metric,sort:"epa",dir:-1,sel:cfg.def(D).k};S=ST[p];
+ document.querySelectorAll(".topnav button").forEach(b=>{const on=b.dataset.p===p;b.setAttribute("aria-selected",on);b.tabIndex=on?0:-1});
+ $("#h1").textContent=cfg.h1;$("#sub").textContent=cfg.sub;document.title=`${cfg.h1}: 2026 ${cfg.full.toLowerCase()} through Week {{WEEK}}`;
+ chips($("#fa"),cfg.arch,()=>S.a,1);
+ tabset("#views",cfg.views,"view",()=>{$("#tip").style.opacity=0;field(true)});
+ tabset("#tabs",cfg.lead,"metric",()=>bars(F()));
+ $("#cardnote").textContent=`Pick a ${cfg.one}, or tap one anywhere on the page. Black ticks mark the average across all ${D.length} ${cfg.many} shown.`;
+ $("#mixnote").textContent=`How each league's ${cfg.many} break down. Hybrids count toward both of their archetypes.`;
+ $("#boardnote").textContent=`Tap a column to sort, or a row to load that ${cfg.one}'s card. Sched. ranks the ${cfg.sosWho} each ${cfg.one} has faced, 1 being the toughest. Scroll sideways for more columns.`;
+ $("#foot").innerHTML=cfg.foot;$("#tip").style.opacity=0;
+ header();pickList();$("#dots").innerHTML="";dots.clear();render(false);
+ if(push){try{history.replaceState(null,"","#"+p)}catch(e){}}}
+const NAV=[...document.querySelectorAll(".topnav button")];
+NAV.forEach((b,i)=>{b.onclick=()=>{if(b.dataset.p!==pos){setPos(b.dataset.p,true);scrollTo(0,0)}};
+ b.onkeydown=e=>{const j=e.key==="ArrowRight"?(i+1)%NAV.length:e.key==="ArrowLeft"?(i+NAV.length-1)%NAV.length:-1;if(j>=0){e.preventDefault();NAV[j].focus();NAV[j].click()}}});
+chips($("#fc"),CF,()=>G.c,0);
+{const h=(location.hash||"").slice(1);setPos(P[h]?h:"qb",false)}
+addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(P[h])setPos(h,false)});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{field(false);mix(F())});
+let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{field(false);mix(F())},120)});
+</script></body></html>
