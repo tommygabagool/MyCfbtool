@@ -27,7 +27,7 @@ for _, r in P.iterrows():
     for gid, x in d.groupby('game_id'):
         a, rr, lv = x[x.is_att], x[x.is_rush], x[x.live & x.epa.notna()]
         opp = x.dfn.iloc[0]; hf = int(np.sign(x.homeflag.mean()))
-        games.append(dict(dt=gd[gid].strftime('%b %-d'), ts=int(gd[gid].timestamp()), o=opp, h=hf,
+        games.append(dict(dt=f"{gd[gid]:%b} {gd[gid].day}", ts=int(gd[gid].timestamp()), o=opp, h=hf,
                           od=int(fr[opp]) if opp in fr.index else 'FCS', oe=round(E['epa'][opp], 3),
                           cmp=int(a.cmp.sum()), att=len(a), py=int(a.pyds.sum()), ptd=int(a.ptd.sum()), i=int(a.intc.sum()),
                           car=len(rr), ry=int(rr.ryds.sum()), rtd=int(rr.rtd.sum()),

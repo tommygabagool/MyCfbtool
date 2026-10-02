@@ -87,5 +87,86 @@ def fit(s, FBS, prior=None):
         oe = beta[:N] + np.where(isF, beta[2 * N], 0.0); de = beta[N:2 * N] + np.where(isF, beta[2 * N + 1], 0.0)
         oe = oe - oe[~isF].mean(); de = de - de[~isF].mean()
         res[k] = dict(off={t: float(oe[ix[t]]) for t in teams}, dfn={t: float(de[ix[t]]) for t in teams},
-                      lam0=lam0, s2=float(s2), n=n, home=float(beta[2 * N + 2]), fcs_def=float(beta[2 * N + 1]))
+                      lam0=lam0, s2=float(s2), n=n, home=float(beta[2 * N + 2]), fcs_def=float(beta[2 * N + 1]),
+                      # rating of an FCS team with no plays yet: the FCS group term, on the same centered scale
+                      fcs_off_c=float(beta[2 * N] - (beta[:N] + np.where(isF, beta[2 * N], 0.0))[~isF].mean()),
+                      fcs_def_c=float(beta[2 * N + 1] - (beta[N:2 * N] + np.where(isF, beta[2 * N + 1], 0.0))[~isF].mean()))
     return res
+
+def season_prior(R, Y, base=2025, conf=None):
+    """Prior for fit(): each FBS team starts from its rating in season `base` scaled by the 2024-to-2025 carryover slope,
+    held with the year-to-year residual variance. R comes from seasons.pkl, Y from persistence.csv.
+    With conf ({team: conference in the season being rated}) and Y from persistence_conf.csv, the carryover is split in two:
+    the conference's average rating carries over at one rate and the team's standing within its conference at another."""
+    fbs25 = set(R[base]['_fbs']); prior = {}
+    for k in [m for m in R[base] if not m.startswith('_')]:
+        r25 = R[base][k]; tau2_full = r25['s2'] / r25['lam0']
+        pk = {'tau2_default': tau2_full}
+        for side, key in (('off', 'off'), ('def', 'dfn')):
+            row = Y[(Y.metric == k) & (Y.side == key)].iloc[0]
+            pk['tau2_' + side] = max(row.resid_sd ** 2, 0.25 * tau2_full)
+            if conf is None:
+                pk['mu_' + side] = {t: row.slope * v for t, v in r25[key].items() if t in fbs25}
+            else:
+                cm = conf_means(r25[key], fbs25, conf)
+                pk['mu_' + side] = {t: row.s_conf * cm[t] + row.s_dev * (v - cm[t]) for t, v in r25[key].items() if t in fbs25}
+        prior[k] = pk
+    return prior
+
+def conf_means(rating, teams, conf):
+    """{team: average rating of the teams in its conference}. Independents (and teams with no conference) get 0, the FBS
+    average, so their whole rating counts as standing rather than as a conference level that carries over strongly."""
+    grp = {t: conf.get(t) for t in teams if t in rating and conf.get(t) not in (None, 'FBS Independents')}
+    s = pd.Series({t: rating[t] for t in grp}, dtype=float); m = s.groupby(pd.Series(grp, dtype=object)).mean()
+    return {t: float(m[grp[t]]) if t in grp else 0.0 for t in teams if t in rating}
+
+def pace_points(tr, FBS, pts):
+    """From plays tr: league scrimmage plays per team-game and points per play in FBS-vs-FBS games (the ratings are centered
+    on FBS, and FCS blowouts would inflate both), plus each team's pace (offensive plays per game run and allowed, shrunk 2
+    games toward average). pts: {(game_id, team): points scored}."""
+    live = (tr.is_att | tr.is_sack | tr.is_rush) & ~tr.kneel
+    gid = tr.game_id.astype(int)
+    tg = live.groupby([gid, tr.off, tr.dfn]).sum()
+    fb = tg[tg.index.get_level_values(1).isin(FBS) & tg.index.get_level_values(2).isin(FBS)].droplevel(2)
+    L = float(fb.mean())
+    pp = np.array([(n, pts[k]) for k, n in fb.items() if k in pts], dtype=float)
+    ppp = pp[:, 1].sum() / pp[:, 0].sum()
+    def shr(by):
+        g = live.groupby([tr[by], gid]).sum().groupby(level=0).agg(['mean', 'size'])
+        return ((g['mean'] * g['size'] + 2 * L) / (g['size'] + 2)).to_dict()
+    return L, ppp, shr('off'), shr('dfn')
+
+def rating(r, side, t, FBS):
+    """Team t's rating from one metric's fit() result; a team with no plays yet gets the FCS group rating (or average FBS)."""
+    v = r[side].get(t)
+    if v is not None: return v
+    return 0.0 if t in FBS else r['fcs_off_c' if side == 'off' else 'fcs_def_c']
+
+P4C = {'ACC', 'Big 12', 'Big Ten', 'SEC'}
+def tiers(t, conf, FBS):
+    """(Power 4 or Notre Dame, FCS) indicators for the league-tier term."""
+    return float(conf.get(t) in P4C or t == 'Notre Dame'), float(t not in FBS)
+
+def team_points(t, o, hf, r, FBS, L, ppp, pace_o, pace_d, cal, conf):
+    """Projected scrimmage plays, net EPA-per-play edge and points for offense t against defense o.
+    r: the 'epa' entry of fit()'s result; cal: calib.json (scale, and the tier terms split evenly between the two teams)."""
+    plays = pace_o.get(t, L) + pace_d.get(o, L) - L
+    epa = rating(r, 'off', t, FBS) + rating(r, 'dfn', o, FBS) + r['home'] * hf
+    (p4t, fct), (p4o, fco) = tiers(t, conf, FBS), tiers(o, conf, FBS)
+    tier = (cal.get('p4', 0.0) * (p4t - p4o) + cal.get('fcs', 0.0) * (fct - fco)) / 2
+    return plays, epa, floor0(plays * (ppp + cal['scale'] * epa) + tier)
+
+def floor0(mu, sd=12.0):
+    """Expected points when the raw projection mu is the mean of a team score (sd ~12 points) that can't go below zero.
+    Matters only in mismatches, where a plain max(0, mu) would project a shutout."""
+    from math import erf, exp, pi, sqrt
+    z = mu / sd
+    return mu * 0.5 * (1 + erf(z / sqrt(2))) + sd * exp(-z * z / 2) / sqrt(2 * pi)
+
+def points_lookup(sched):
+    """{(game_id, team): points} from a cfb_schedules table."""
+    out = {}
+    for z in sched.itertuples(index=False):
+        if pd.notna(z.home_points) and pd.notna(z.away_points):
+            out[(int(z.game_id), z.home_team)] = float(z.home_points); out[(int(z.game_id), z.away_team)] = float(z.away_points)
+    return out

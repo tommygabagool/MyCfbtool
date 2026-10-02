@@ -105,7 +105,7 @@ def glog(p, kind):
     for gid in sorted(set(c.game_id) | set(g.game_id), key=lambda z: gd[z]):
         cc, gg = c[c.game_id == gid], g[g.game_id == gid]; x = pd.concat([cc, gg])
         opp = x.dfn.iloc[0]; hf = int(np.sign(x.homeflag.mean())); rkr = RUNR if kind == 'rb' else PASSR
-        z = dict(dt=gd[gid].strftime('%b %-d'), o=opp, h=hf, od=int(rkr[opp]) if opp in rkr.index else 'FCS',
+        z = dict(dt=f"{gd[gid]:%b} {gd[gid].day}", o=opp, h=hf, od=int(rkr[opp]) if opp in rkr.index else 'FCS',
                  car=len(cc), ry=int(cc.ryds.sum()), rtd=int(cc.rtd.sum()), tgt=len(gg), rec=int(gg.cmp.sum()), recy=int(gg.pyds.sum()), rectd=int(gg.ptd.sum()))
         base = cc if kind == 'rb' else gg; ea = (base.epa - (base.e_repa if kind == 'rb' else base.e_pepa))
         z['e'] = R3(base.epa.mean()) if base.epa.notna().any() else None; z['ea'] = R3(ea.mean()) if ea.notna().any() else None
