@@ -3,6 +3,7 @@ totals, full schedule, and for each game both teams' players (actual box score o
 on). Writes work/teams_data.json."""
 import paths  # noqa: F401  (sets the working directory to work/)
 import pandas as pd, numpy as np, json, pickle
+from pathlib import Path
 from common import P4C, tiers
 
 P = pickle.load(open('proj.pkl', 'rb')); PL = pd.read_pickle('players.pkl')
@@ -15,6 +16,8 @@ P4 = {t for t, c in conf.items() if c in P4C} | {'Notre Dame'}
 S = pd.read_parquet('../data/schedules_2026.parquet'); S['gid'] = S.game_id.astype(int); S = S.drop_duplicates('gid').set_index('gid')
 S['ts'] = pd.to_datetime(S.start_date, utc=True)
 bet = pd.read_parquet('../data/betting_2026.parquet'); bet['gid'] = bet.game_id.astype(int); bet = bet.drop_duplicates('gid').set_index('gid')
+LINES = Path('../data/espn_lines_2026.json')  # ESPN's lines for games the betting file doesn't have yet (download_data.py)
+pre = json.loads(LINES.read_text()) if LINES.exists() else {}
 G = S[S.home_team.isin(P4) | S.away_team.isin(P4)].sort_values('ts')
 done = lambda g: g in P['BOX'] and bool(S.at[g, 'completed'])
 
@@ -93,6 +96,8 @@ for g, z in G.iterrows():
     if bool(z.completed) and pd.notna(z.home_points): e['hs'], e['as'] = int(z.home_points), int(z.away_points)
     if g in bet.index and bool(bet.at[g, 'game_spread_available']):
         e['ln'] = dict(sp=float(bet.at[g, 'home_team_spread']), ou=float(bet.at[g, 'over_under']) if pd.notna(bet.at[g, 'over_under']) else None)
+    elif str(g) in pre:
+        e['ln'] = pre[str(g)]
     m = P['MODEL'].get(g)
     if m: e['m'] = dict(hp=r1(m['hp']), ap=r1(m['ap']), wp=round(m['wp'], 3), asof=int(m['asof']))
     if g in P['BOX'] and e['done']: e['box'] = {str(p): v for p, v in P['BOX'][g].items()}

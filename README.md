@@ -28,7 +28,7 @@ All scripts live in `pipeline/` and run from `work/` (handled by `paths.py`). Ra
 
 | Step | Script | What it does | Writes |
 |---|---|---|---|
-| 0 | `download_data.py` | Fetches play-by-play (2024 to 2026), ESPN game rosters and box scores, schedules (2025 and 2026) and 2026 betting lines | `data/*.parquet` |
+| 0 | `download_data.py` | Fetches play-by-play (2024 to 2026), ESPN game rosters and box scores, schedules (2025 and 2026) and 2026 betting lines, plus ESPN's current lines for games not yet played | `data/*.parquet`, `data/espn_lines_2026.json` |
 | 1 | `prep.py` | Scrimmage plays, outcome flags, QB attribution, garbage time, source-data fixes | `plays.parquet`, `teams.json` |
 | 2 | `seasons.py` | Ratings for 2024 and 2025 and their year-to-year carryover, overall and split into conference average and standing within the conference | `seasons.pkl`, `persistence.csv`, `persistence_conf.csv` |
 | 3 | `fit2026.py` | 2026 offense and defense ratings for every metric, seeded by regressed 2025 ratings | `def_effects.json`, `off_effects.json` |
@@ -137,7 +137,7 @@ Rushing yards exclude sacks, and kneel-downs are dropped.
 
 Years are hardcoded in:
 
-- `download_data.py`: the season, the prior-season play-by-play and schedule file names, and the local file names;
+- `download_data.py`: the season, the prior-season play-by-play and schedule file names, and the local file names (including `espn_lines_2026.json`, also read by `teams.py`);
 - `seasons.py`: the two prior seasons;
 - `fit2026.py` and `project.py`: the 2025 seed (`season_prior`'s default base year in `common.py`);
 - `project.py`: postseason games are placed after the regular season (play-by-play labels them week 1); bowls and playoff games all share that one slot;
@@ -151,7 +151,7 @@ Conference membership comes from the play-by-play.
 
 - Play-by-play: [cfbfastR](https://github.com/sportsdataverse/cfbfastR) data via the [sportsdataverse-data](https://github.com/sportsdataverse/sportsdataverse-data) releases.
 - Game rosters and player box scores: ESPN data via the same releases.
-- Schedules (dates, venues, scores) and betting lines: the same releases' `cfb_schedules` and `espn_cfb_betting` files.
+- Schedules (dates, venues, scores) and betting lines: the same releases' `cfb_schedules` and `espn_cfb_betting` files. The betting file only adds a game once it's final, so lines for games not yet played come from ESPN's public scoreboard API (`site.api.espn.com/.../college-football/scoreboard`, the line it shows for each FBS game). ESPN removes a game's line once it's final; `download_data.py` keeps the lines it saved on earlier runs, so a just-finished game keeps a line until the betting file picks it up. The betting file's line wins wherever both have one, and the backtest uses only the betting file.
 
 Raw data isn't committed (`data/` and `work/` are in `.gitignore`); check the sources' terms before redistributing it.
 

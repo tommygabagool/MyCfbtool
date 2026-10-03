@@ -522,7 +522,7 @@ function foot(){const a=M.acc||{},c=M.cal||{},c0=M.cal25||{},f=(v,d=1)=>ok(v)?(+
  <p>Player lines, against a baseline of each player's season average so far (error is the average miss; correlation is between projected and actual):</p>
  ${plT}
  <p><b>Limits.</b> No injury reports or depth-chart news, so a player who missed recent games is projected at a reduced share. No projection for Week 1. FCS opponents have little data. Special teams and turnovers aren't modeled separately. Projections are averages, not ceilings.</p>
- <p>Source is cfbfastR's 2026 play-by-play and ESPN's game rosters and box scores; dates and kickoff times are Eastern. Games through {{THROUGH}}.</p>`}
+ <p>Source is cfbfastR's 2026 play-by-play and ESPN's game rosters and box scores; dates and kickoff times are Eastern. Vegas lines are sportsdataverse's for played games and ESPN's current line for games not yet played. Games through {{THROUGH}}.</p>`}
 
 /* ---------- routing ---------- */
 function route(first){const raw=location.hash.replace(/^#\/?/,""),i=raw.indexOf("/"),kind=i<0?raw:raw.slice(0,i);let arg=i<0?"":raw.slice(i+1);
