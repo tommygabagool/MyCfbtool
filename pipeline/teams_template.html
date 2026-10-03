@@ -215,6 +215,48 @@ button.x{font:600 15px Barlow,system-ui,sans-serif;border:1.5px solid var(--dim)
 .nbox p{margin:4px 0 0}
 .lg td{font-size:13.5px;padding:7px 6px;vertical-align:top}
 .lg td small{display:block;color:var(--dim);font-size:12px}
+/* matchup: what a player's projection in one game rests on */
+.mxs{margin:20px 0 0;border-top:4px solid var(--deep);padding-top:10px}
+.mxs>.kick{margin:0 0 2px}
+.mxl{margin:2px 0 0;font-size:14.5px}
+.mxl b{display:block;font:700 21px/1.2 "Barlow Condensed","Arial Narrow",sans-serif}
+.mxl small{display:block;color:var(--dim);font-size:13px;margin-top:3px;line-height:1.35}
+.mxf h3{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;margin:24px 0 2px}
+#pp .mxf h3 small{margin-left:0}
+.mxf .note{margin:4px 0 8px;font-size:13.5px}
+.wf{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(70px,1fr) auto;gap:4px 12px;align-items:center;margin:12px 0 6px;font-size:13.5px}
+.wf .wl{line-height:1.2;font-weight:600}
+.wf .wl small{display:block;color:var(--dim);font-size:12px;font-weight:500}
+.wf .wt{position:relative;height:22px}
+.wf .wt::before{content:"";position:absolute;top:-4px;bottom:-4px;left:var(--g);width:1px;background:var(--line)}
+.wf .wb{position:absolute;top:6px;height:10px;min-width:2px;border-radius:4px;background:var(--pr)}
+.wf .wb.n{background:var(--gs)}
+.wf .wd{position:absolute;top:5px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2px var(--paper)}
+.wf .wv{font:700 18px/1 "Barlow Condensed","Arial Narrow",sans-serif;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.wf .tl{border-top:1px solid var(--line);padding-top:6px;margin-top:2px}
+.wf .wt.tl{height:28px}
+.wf .wt.tl .wd{top:11px}
+.mxt td,.mxt th{padding:6px}
+.mxt td:first-child{font-weight:600;white-space:normal}
+.mxt td.num{font-variant-numeric:tabular-nums}
+.mxt .pill{min-width:0;margin-left:5px;font-size:12px}
+.lgd{display:flex;gap:4px 16px;flex-wrap:wrap;font-size:13px;color:var(--dim);margin:12px 0 0}
+.lgd i{display:inline-block;margin-right:6px}
+.lgd .k1{width:10px;height:10px;border-radius:50%;background:var(--t);vertical-align:-1px}
+.lgd .k2{width:9px;height:9px;transform:rotate(45deg);border:2px solid var(--ink);vertical-align:0}
+.lgd .k3{width:10px;height:10px;border-radius:50%;background:var(--ink);vertical-align:-1px}
+.lgd .k4{width:16px;border-top:2px solid var(--dim);vertical-align:3px}
+.rc{position:relative;margin:4px 0 0;min-height:250px}
+.rc svg{display:block;overflow:visible}
+.rc .hit{fill:transparent;cursor:default}
+.rc .hit:focus{outline:none}
+.rc .hit:focus-visible{stroke:var(--focus);stroke-width:2}
+.rc .tip{position:absolute;pointer-events:none;background:var(--paper);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:4px;padding:6px 9px;font-size:12.5px;line-height:1.3;white-space:nowrap;z-index:2}
+.rc .tip b{display:block;font:700 18px/1.1 "Barlow Condensed","Arial Narrow",sans-serif}
+details.tv{margin:6px 0 0;font-size:13.5px}
+details.tv summary{cursor:pointer;color:var(--dim);font-weight:600;padding:4px 0}
+details.tv table{font-size:13px}
+details.tv td,details.tv th{padding:5px 6px}
 .foot h2{color:var(--ink);margin-bottom:10px}
 .foot .tw{margin:6px 0 16px;max-width:640px}
 .foot table{font-size:13px}
@@ -308,8 +350,8 @@ function lineTxt(s,proj){const c=proj?n1:v=>mn(String(v)),y=proj?yd:v=>mn(String
  if(S(s,"car")>=(proj?0.5:1))out.push(`${c(S(s,"car"))} car, ${y(S(s,"ry"))} rush yds${S(s,"rtd")>=(proj?0.05:1)?`, ${c(S(s,"rtd"))} TD`:""}`);
  if(S(s,"tgt")>=(proj?0.5:1))out.push(`${c(S(s,"rec"))} rec on ${c(S(s,"tgt"))} tgt, ${y(S(s,"recy"))} rec yds${S(s,"rectd")>=(proj?0.05:1)?`, ${c(S(s,"rectd"))} TD`:""}`);
  return out.join("; ")}
-const pname=(pid,dnp)=>{const p=PL[pid];if(!p)return"–";
- return`<button class="pl" data-p="${esc(pid)}">${esc(p.n)}</button>${p.pk?`<a class="pk" href="../players/index.html#${esc(p.pk[0])}/${enc(p.pk[1])}" aria-label="${esc(p.n)} on the Players page">Card&nbsp;↗</a>`:""}<small>${esc(p.pos)}${p.jn?` #${esc(p.jn)}`:""}${dnp?`<span class="tag">Did not play</span>`:""}</small>`};
+const pname=(pid,dnp,gid)=>{const p=PL[pid];if(!p)return"–";
+ return`<button class="pl" data-p="${esc(pid)}"${gid?` data-g="${esc(gid)}"`:""}>${esc(p.n)}</button>${p.pk?`<a class="pk" href="../players/index.html#${esc(p.pk[0])}/${enc(p.pk[1])}" aria-label="${esc(p.n)} on the Players page">Card&nbsp;↗</a>`:""}<small>${esc(p.pos)}${p.jn?` #${esc(p.jn)}`:""}${dnp?`<span class="tag">Did not play</span>`:""}</small>`};
 
 /* ---------- directory ---------- */
 const DS={c:new Set(CF),q:"",sort:"pw",all:false};
@@ -417,7 +459,7 @@ function cell(c,P,A,mode){const[,k,ty,inv]=c;
  let ar="";if(P){const d=A[i]-P[i],th=ty==="y"?Math.max(15,.35*P[i]):ty==="t"?1:Math.max(2,.35*P[i]);
   if(Math.abs(d)>=th){const up=d>0,good=inv?!up:up;ar=`<span class="ar ${good?"up":"dn"}" title="${up?"Above":"Below"} projection">${up?"▲":"▼"}</span>`}}
  return`<b>${av}</b>${ar}<span class="pj">${pf}</span>`}
-function side(g,t,st,mode){const pr=g.pr||{},bx=g.box||{},ids=[...new Set([...Object.keys(pr),...Object.keys(bx)])].filter(p=>PL[p]&&PL[p].t===t);
+function side(g,t,st,mode,gid){const pr=g.pr||{},bx=g.box||{},ids=[...new Set([...Object.keys(pr),...Object.keys(bx)])].filter(p=>PL[p]&&PL[p].t===t);
  const v=pv(g,t),x=T[t]||{};
  const head=`<h3 class="sh tc" style="${st}"><i class="dot"></i>${tl(t)}<small>${mode==="proj"&&g.m?`proj. ${n1(v.pu)} pts`:g.done&&ok(v.us)?`${v.us} pts${g.m?`, proj. ${n1(v.pu)}`:""}`:""}</small></h3>`;
  const fcs=!x.fbs?`<p class="note" style="margin:2px 0 0">FCS team: the data has only its games against FBS opponents, so its player lines rest on few games.</p>`:"";
@@ -427,7 +469,7 @@ function side(g,t,st,mode){const pr=g.pr||{},bx=g.box||{},ids=[...new Set([...Ob
   if(!ps.length)return`<h4>${G.t}</h4><p class="empty" style="padding:8px 0">None ${mode==="proj"?"projected":"recorded"}.</p>`;
   return`<h4>${G.t}</h4><div class="tw"><table class="gt"><thead><tr><th>Player</th>${G.cols.map(c=>`<th class="num">${c[0]}</th>`).join("")}</tr></thead><tbody>${ps.map(p=>{
    const P=pr[p],A=bx[p],dnp=mode==="both"&&!A;
-   return`<tr class="${dnp?"dnp":""}"><td class="pn">${pname(p,dnp)}</td>${G.cols.map(c=>`<td class="num">${cell(c,P,A,mode)}</td>`).join("")}</tr>`}).join("")}</tbody></table></div>`}).join("");
+   return`<tr class="${dnp?"dnp":""}"><td class="pn">${pname(p,dnp,gid)}</td>${G.cols.map(c=>`<td class="num">${cell(c,P,A,mode)}</td>`).join("")}</tr>`}).join("")}</tbody></table></div>`}).join("");
  return head+fcs+body}
 function rkPill(r){return r?`<span class="pill${r<=25?" top":""}">#${r}</span>`:`<span class="pill" title="FCS teams aren't rated with FBS">FCS</span>`}
 function matchup(o,d,so,sd){const ro=(T[o]||{}).rk||{},rd=(T[d]||{}).rk||{};
@@ -460,9 +502,9 @@ function gameView(gid){const g=GM[gid],[sa,sh]=pair(g.a,g.h),sep=g.ns?"vs.":"at"
  const sx=t=>{const x=T[t]||{};return[isP4(t)&&x.rec?rec(x.rec):null,x.fbs?x.c:`FCS${x.c?" ("+esc(x.c)+")":""}`].filter(Boolean).map(esc).join(" · ")};
  const sbr=(t,st,rk,s,role,lose)=>`<div class="sbr tc${lose?" lose":""}" style="${st}"><div><div class="sbn">${apb(rk)}${tl(t)}</div><div class="sbx">${role} · ${sx(t)}</div></div>${fin?`<div class="sbs">${s}</div>`:""}</div>`;
  const pa=g.pr?Object.keys(g.pr).length:0;
- const legend=mode==="both"?`<p class="note">Bold is what he did; gray is the model's pregame projection. ▲ or ▼ marks a line well above or below it (blue is good for the offense, red is bad; for interceptions and sacks, more is bad). Players are sorted by projected volume.</p>`
+ const legend=mode==="both"?`<p class="note">Bold is what he did; gray is the model's pregame projection. ▲ or ▼ marks a line well above or below it (blue is good for the offense, red is bad; for interceptions and sacks, more is bad). Players are sorted by projected volume. Tap a name to see how his projection was built against this defense.</p>`
   :mode==="act"?`<p class="note">Actual lines only: there is no pregame projection for Week 1.</p>`
-  :`<p class="note">Projected lines: counts to one decimal, yards rounded. Each is an average outcome, not a ceiling. Players are sorted by projected volume.</p>`;
+  :`<p class="note">Projected lines: counts to one decimal, yards rounded. Each is an average outcome, not a ceiling. Players are sorted by projected volume. Tap a name to see how his projection is built against this defense, next to how he has done against the defenses he has faced.</p>`;
  V.innerHTML=`<p class="crumb"><a href="#">All teams</a> <span aria-hidden="true">›</span> ${[g.a,g.h].map(t=>isP4(t)?`<a href="${TH(t)}">${esc(t)}</a>`:esc(t)).join(` <span aria-hidden="true">·</span> `)}</p>
  <p class="kick">Week ${g.wk} · ${g.cg?esc(T[g.h].c)+" game":"Nonconference"}${fin?" · Final":""}</p>
  <h1 id="h1" tabindex="-1" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">${esc(g.a)} ${sep} ${esc(g.h)}${fin?`, final: ${esc(g.a)} ${g.as}, ${esc(g.h)} ${g.hs}`:""}</h1>
@@ -474,23 +516,129 @@ function gameView(gid){const g=GM[gid],[sa,sh]=pair(g.a,g.h),sep=g.ns?"vs.":"at"
  <p class="pw">Model power: ${[[g.a,sa],[g.h,sh]].map(([t])=>{const x=T[t]||{};return x.fbs?`<b>${esc(ab(t))} ${sg(x.pw)}</b>${x.pwr?` (${ord(x.pwr)})`:""}`:`<b>${esc(ab(t))}</b> unrated (FCS)`}).join(", ")}. Points better or worse than an average FBS team on a neutral field.</p></div></section>
  <section><h2>Players</h2>${legend}
  <div class="seg sidetabs" role="tablist" aria-label="Team">${[g.a,g.h].map(t=>`<button role="tab" data-t="${esc(t)}">${esc(t)}</button>`).join("")}</div>
- <div class="vs2">${[[g.a,sa],[g.h,sh]].map(([t,st])=>`<div class="side" data-t="${esc(t)}" role="tabpanel">${side(g,t,st,mode)}</div>`).join("")}</div></section>`;
+ <div class="vs2">${[[g.a,sa],[g.h,sh]].map(([t,st])=>`<div class="side" data-t="${esc(t)}" role="tabpanel">${side(g,t,st,mode,gid)}</div>`).join("")}</div></section>`;
  const want=GS.side&&[g.a,g.h].includes(GS.side)?GS.side:(isP4(g.a)||!isP4(g.h)?g.a:g.h);
  const setSide=t=>{$$(".sidetabs button",V).forEach(b=>{const on=b.dataset.t===t;b.setAttribute("aria-selected",on);b.tabIndex=on?0:-1});$$(".vs2 .side",V).forEach(s=>s.classList.toggle("on",s.dataset.t===t))};
  $$(".sidetabs button",V).forEach((b,i,all)=>{b.onclick=()=>{GS.side=b.dataset.t;setSide(b.dataset.t)};
   b.onkeydown=e=>{if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();const n=all[1-i];n.focus();n.click()}}});
  setSide(want)}
 
+/* ---------- matchup: what one player's projection in one game rests on ---------- */
+const MET={cmp:"cmp",py:"ypa",ptd:"ptd",int:"int",ry:"ry",rtd:"rtd",rec:"cmp",recy:"ypa",rectd:"ptd"};
+const MLAB={cmp:"completion rate",ypa:"yards per attempt",ptd:"TD rate",int:"interceptions",ry:"yards per carry",rtd:"rushing TD rate"};
+const UNITN={cmp:"pass defense",ypa:"pass defense",ptd:"pass defense",int:"pass defense",ry:"run defense",rtd:"run defense"};
+const FAMS=[
+ {k:"pass",t:"Passing",vol:"att",vl:"pass attempts",v1:"attempt",tv:1,main:"py",u:"yds/att",min:5,show:2,
+  rates:[["cmp","Completion rate",1],["py","Yards",0],["ptd","Touchdowns",1],["int","Interceptions",1]]},
+ {k:"rush",t:"Rushing",vol:"car",vl:"carries",v1:"carry",tv:2,main:"ry",u:"yds/carry",min:3,show:2,
+  rates:[["ry","Yards",0],["rtd","Touchdowns",1]]},
+ {k:"recv",t:"Receiving",vol:"tgt",vl:"targets",v1:"target",tv:3,main:"recy",u:"yds/target",min:2,show:1.5,
+  rates:[["rec","Catch rate",1],["recy","Yards",0],["rectd","Touchdowns",1]]}];
+const fR=(v,pc)=>!ok(v)?"–":pc?(v*100).toFixed(1)+"%":mn(v.toFixed(1));
+const fD=(v,pc)=>!ok(v)?"–":(v>=0?"+":"−")+(pc?(Math.abs(v)*100).toFixed(1)+" pts":Math.abs(v).toFixed(1));
+function dxOf(t,m){const x=T[t]&&T[t].dx,v=x&&x[M.dxk.indexOf(m)];return v?{e:v[0],r:v[1]}:null}
+const rkS=d=>d&&d.r?`#${d.r}`:"FCS";
+const pcw=(st,i)=>Math.round(M.pc.rate[st][i]*100)+"%";
+const CLIPJ={cmp:[.25,.9],py:[2,14],ptd:[0,.15],int:[0,.08],ry:[-1,12],rtd:[0,.15],rec:[.2,.95],recy:[1,18],rectd:[0,.2]};   // pmodel.CLIP
+function projRate(st,q,o,hfo){const m=MET[st],c=M.pc.rate[st],d=dxOf(o,m),avg=q[3],sum=avg+c[0]+c[1]*(q[2]-avg)+c[2]*((d?d.e:0)+(M.dhome[m]||0)*hfo);
+ return{sum,v:Math.min(Math.max(sum,CLIPJ[st][0]),CLIPJ[st][1])}}
+function schedTxt(F,n,q,m){const more=q[1]>=0,same=Math.abs(q[1])<.05;
+ return`${n} ${F.vl} so far at ${fR(q[0])} ${F.u}. The defenses he has faced allow ${same?"about what an average FBS defense allows":`${Math.abs(q[1]).toFixed(1)} ${F.u} ${more?"more":"fewer"} than an average FBS defense`}, like facing the #${q[4]} ${UNITN[m]} every game, so against an average defense his rate is worth about ${fR(q[2])} (small samples are pulled toward the average for his position).`}
+function wfall(F,q,o,hfo,d){const st=F.main,m=MET[st],c=M.pc.rate[st],avg=q[3],de=d?d.e:0,hm=(M.dhome[m]||0)*hfo;
+ const steps=[["FBS average","for his position",avg,0],
+  ["His edge, schedule-adjusted",`${fD(q[2]-avg)} × ${pcw(st,1)}`,c[1]*(q[2]-avg),1],
+  [`${esc(o)}'s ${UNITN[m]}`,`${fD(de)}, ${rkS(d)}, × ${pcw(st,2)}`,c[2]*de,1]];
+ if(hfo)steps.push([hfo>0?"Home field":"Road game",`${fD(hm)} × ${pcw(st,2)}`,c[2]*hm,1]);
+ steps.push(["Calibration","fit on 2025 results",c[0],1]);
+ const fin=projRate(st,q,o,hfo).v;let cum=avg;const xs=[avg];steps.slice(1).forEach(s=>{cum+=s[2];xs.push(cum)});
+ const all=[...xs,fin],lo0=Math.min(...all),hi0=Math.max(...all),pad=Math.max((hi0-lo0)*.12,.15),lo=lo0-pad,hi=hi0+pad;
+ const X=v=>((v-lo)/(hi-lo)*100).toFixed(2)+"%",g=X(avg);
+ const row=(l,s,inner,val,cl="")=>`<div class="wl${cl}">${l}<small>${s}</small></div><div class="wt${cl}" style="--g:${g}">${inner}</div><div class="wv${cl}">${val}</div>`;
+ let run=avg,rows="";
+ steps.forEach(s=>{if(!s[3]){rows+=row(s[0],s[1],`<i class="wd" style="left:${X(s[2])}"></i>`,fR(s[2]));return}
+  const a=run,b=run+s[2];run=b;
+  rows+=row(s[0],s[1],`<i class="wb${s[2]<0?" n":""}" style="left:${X(Math.min(a,b))};width:calc(${X(Math.max(a,b))} - ${X(Math.min(a,b))})" title="${fD(s[2])} ${F.u}"></i>`,fD(s[2]))});
+ rows+=row("Projected",`vs. ${esc(o)}`,`<i class="wd" style="left:${X(fin)}"></i>`,fR(fin)," tl");
+ const cap=Math.abs(run-fin)>.005?`<p class="note">The parts add to ${fR(run)}; projected rates are held to sensible limits, so he is projected at ${fR(fin)}.</p>`:"";
+ return`<p class="note" style="margin:14px 0 0"><b>How ${fR(fin)} ${F.u} is built</b> (blue helps the offense, red hurts it)</p><div class="wf">${rows}</div>${cap}`}
+function rtable(F,arr,o,P,A,fin,hfo){
+ const rows=F.rates.map(([st,lab,pc],i)=>{const q=arr?arr[1+i]:null,m=MET[st],d=dxOf(o,m);
+  const pr=!fin&&q&&ok(q[2])&&P?projRate(st,q,o,hfo).v:P&&S(P,F.vol)>0?S(P,st)/S(P,F.vol):null,ac=A&&S(A,F.vol)>0?S(A,st)/S(A,F.vol):null;
+  return`<tr><td>${lab}</td><td class="num">${q?fR(q[0],pc):"–"}</td><td class="num">${q?fR(q[2],pc):"–"}</td><td class="num">${d?fD(d.e,pc):"–"}${d?`<span class="pill">${rkS(d)}</span>`:""}</td><td class="num">${ok(pr)?fR(pr,pc):"–"}</td>${fin?`<td class="num">${ok(ac)?`<b>${fR(ac,pc)}</b>`:"–"}</td>`:""}</tr>`}).join("");
+ return`<div class="tw"><table class="mxt"><thead><tr><th>Per ${F.v1}</th><th class="num" title="His rate this season">Season</th><th class="num" title="Against an average FBS defense, small samples pulled toward the average">vs. avg. D</th><th class="num" title="What this defense allows above or below an average FBS defense, and its FBS rank">${esc(ab(o))} allows</th><th class="num">${fin?"Pregame":"Proj."}</th>${fin?`<th class="num">Actual</th>`:""}</tr></thead><tbody>${rows}</tbody></table></div>`}
+function volTxt(F,t,tvi,mx,pv_,pm){const tvv=tvi[F.tv],i=["att","car","tgt"].indexOf(F.vol),sh=mx.sh[i],b=mx.b[i],c=M.pc.vol[F.k],bl=c[2]*tvv*sh*Math.abs(pm)/14;
+ return`Volume: ${esc(ab(t))} is projected for ${tvv.toFixed(0)} ${F.vl}. His recent share is ${Math.round(sh*100)}% (${(tvv*sh).toFixed(1)}), and he has averaged ${b.toFixed(1)} per game he has played${mx.av?"":", but he missed the team's last two games, so that average isn't counted"}. The model blends the two (${c[0].toFixed(2)} × share + ${c[1].toFixed(2)} × average, fit on 2025)${Math.abs(bl)>=.05?` and trims ${Math.abs(bl).toFixed(1)} because the projected margin is ${Math.abs(pm).toFixed(0)} points (starters sit in blowouts)`:""}: ${pv_.toFixed(1)}.`}
+const CHS={};let chN=0;
+function chartBlock(F,pid,t,gid,q,P,fin,hfo){const st=F.main,m=MET[st],g=GM[gid],o=g.h===t?g.a:g.h,d=dxOf(o,m);
+ const pts=(TG[t]||[]).filter(x=>GM[x].done&&GM[x].box&&GM[x].box[pid]&&S(GM[x].box[pid],F.vol)>=F.min).map(x=>{const gg=GM[x],b=gg.box[pid],oo=gg.h===t?gg.a:gg.h,dd=dxOf(oo,m);
+  return{x:dd?dd.r:null,y:S(b,st)/S(b,F.vol),v:S(b,F.vol),wk:gg.wk,o:oo,cur:x===gid,lab:`Week ${gg.wk} ${vsat(gg,pv(gg,t))} ${oo}`}});
+ const pr=!fin&&q&&ok(q[2])&&P?projRate(st,q,o,hfo).v:P&&S(P,F.vol)>0?S(P,st)/S(P,F.vol):null;
+ if(pts.length<2)return"";
+ const seas=q&&ok(q[0])?q[0]:null,id="rc"+(++chN);
+ CHS[id]={pts,proj:ok(pr)?{x:d?d.r:null,y:pr,lab:`${fin?"Pregame projection":"Projected"} vs. ${o}`}:null,seas,u:F.u,vl:F.vl,unit:UNITN[m]};
+ const tab=`<details class="tv"><summary>Table view</summary><div class="tw"><table><thead><tr><th class="num">Wk</th><th>Opponent</th><th class="num">Its ${UNITN[m]}</th><th class="num">${F.vl[0].toUpperCase()+F.vl.slice(1)}</th><th class="num">${F.u}</th></tr></thead><tbody>${pts.map(p=>`<tr><td class="num">${p.wk}</td><td>${esc(p.o)}</td><td class="num">${p.x?`#${p.x}`:"FCS"}</td><td class="num">${p.v}</td><td class="num">${fR(p.y)}</td></tr>`).join("")}</tbody></table></div></details>`;
+ return`<p class="note" style="margin:16px 0 0"><b>${F.u[0].toUpperCase()+F.u.slice(1)} in each game, by the opponent's ${UNITN[m]} rank</b> (${MLAB[m]} allowed; games with ${F.min}+ ${F.vl})</p>
+ <div class="lgd tc" style="${tv(t)}"><span><i class="k1"></i>Games he has played</span>${fin?`<span><i class="k3"></i>This game</span>`:""}${ok(pr)?`<span><i class="k2"></i>${fin?"Pregame projection":"Projected"}</span>`:""}${ok(seas)?`<span><i class="k4"></i>Season rate</span>`:""}</div>
+ <div class="rc tc" id="${id}" style="${tv(t)}"></div>${tab}`}
+function drawRC(el,sp){const W=Math.max(260,Math.round(el.clientWidth)),H=250,ml=40,mr=18,mt=18,mb=46,NF=M.nfbs_dx;
+ const hasF=sp.pts.some(p=>p.x==null)||(sp.proj&&sp.proj.x==null),xmax=hasF?NF+20:NF;
+ const xs=r=>ml+((r==null?NF+14:r)-1)/(xmax-1)*(W-ml-mr);
+ const vs=[...sp.pts.map(p=>p.y),...(sp.proj?[sp.proj.y]:[]),...(ok(sp.seas)?[sp.seas]:[])];
+ let lo=Math.min(...vs),hi=Math.max(...vs);const span=Math.max(hi-lo,2),step=[.5,1,2,2.5,5,10].find(s=>span/s<=5)||20;
+ lo=Math.floor((lo-span*.06)/step)*step;hi=Math.ceil((hi+span*.06)/step)*step;
+ const ys=v=>mt+(hi-v)/(hi-lo)*(H-mt-mb),T_=(x,y,txt,a="middle",extra="")=>`<text x="${x}" y="${y}" text-anchor="${a}" font-size="12" fill="var(--dim)"${extra}>${txt}</text>`;
+ let s=`<svg width="${W}" height="${H}" role="img" aria-label="${esc(sp.u)} in each game against the opponent's ${esc(sp.unit)} rank; the table view below lists every game">`;
+ for(let v=lo;v<=hi+1e-9;v+=step)s+=`<line x1="${ml}" x2="${W-mr}" y1="${ys(v)}" y2="${ys(v)}" stroke="var(--line)" stroke-width="1"/>`+T_(ml-7,ys(v)+4,mn(String(+v.toFixed(1))),"end",' style="font-variant-numeric:tabular-nums"');
+ s+=`<line x1="${ml}" x2="${W-mr}" y1="${H-mb}" y2="${H-mb}" stroke="var(--dim)" stroke-width="1"/>`;
+ [1,25,50,75,100,125].filter(r=>r<=NF).forEach(r=>{s+=T_(xs(r),H-mb+17,"#"+r)});
+ if(hasF)s+=T_(xs(null),H-mb+17,"FCS");
+ s+=T_(ml,H-6,`← Tougher ${esc(sp.unit)}`,"start")+T_(W-mr,H-6,"Easier →","end");
+ if(ok(sp.seas))s+=`<line x1="${ml}" x2="${W-mr}" y1="${ys(sp.seas)}" y2="${ys(sp.seas)}" stroke="var(--dim)" stroke-width="2" stroke-linecap="round"/>`;
+ sp.pts.filter(p=>!p.cur).forEach(p=>{s+=`<circle cx="${xs(p.x)}" cy="${ys(p.y)}" r="5" fill="var(--t)" stroke="var(--paper)" stroke-width="2"/>`});
+ sp.pts.filter(p=>p.cur).forEach(p=>{s+=`<circle cx="${xs(p.x)}" cy="${ys(p.y)}" r="6" fill="var(--ink)" stroke="var(--paper)" stroke-width="2"/>`});
+ if(sp.proj){const x=xs(sp.proj.x),y=ys(sp.proj.y),rt=x>W*.72;
+  s+=`<rect x="${x-6}" y="${y-6}" width="12" height="12" transform="rotate(45 ${x} ${y})" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>`;
+  s+=`<text x="${x+(rt?-13:13)}" y="${y+4}" text-anchor="${rt?"end":"start"}" font-size="13" font-weight="700" fill="var(--ink)">${esc(fR(sp.proj.y))}</text>`}
+ const items=[...sp.pts.map(p=>({...p,k:"g"})),...(sp.proj?[{...sp.proj,k:"p"}]:[])];
+ const tipL=p=>p.k==="p"?[`${fR(p.y)} ${sp.u}`,p.lab]:[`${fR(p.y)} ${sp.u}`,p.lab,`${p.x?"#"+p.x:"FCS"} ${sp.unit} · ${p.v} ${sp.vl}`];
+ items.forEach((p,i)=>{s+=`<circle class="hit" data-i="${i}" cx="${xs(p.x)}" cy="${ys(p.y)}" r="12" tabindex="0" aria-label="${esc(tipL(p).join(", "))}"/>`});
+ el.innerHTML=s+`</svg><div class="tip" hidden></div>`;
+ const tip=el.querySelector(".tip");
+ const show=e=>{const c=e.currentTarget,p=items[+c.dataset.i];tip.textContent="";
+  tipL(p).forEach((line,j)=>{const n=document.createElement(j?"div":"b");n.textContent=line;tip.appendChild(n)});tip.hidden=false;
+  const x=+c.getAttribute("cx"),y=+c.getAttribute("cy"),tw=tip.offsetWidth,th=tip.offsetHeight;
+  tip.style.left=Math.min(Math.max(0,x-tw/2),W-tw)+"px";tip.style.top=(y-th-14<0?y+16:y-th-14)+"px"};
+ const hide=()=>{tip.hidden=true};
+ $$(".hit",el).forEach(c=>{c.addEventListener("pointerenter",show);c.addEventListener("focus",show);c.addEventListener("pointerleave",hide);c.addEventListener("blur",hide)})}
+function drawCharts(){for(const id in CHS){const el=document.getElementById(id);if(el)drawRC(el,CHS[id]);else delete CHS[id]}}
+let rsT;addEventListener("resize",()=>{clearTimeout(rsT);rsT=setTimeout(()=>{if(DLG.open)drawCharts()},150)});
+function matchupSec(pid,gid){const p=PL[pid],g=GM[gid];if(!p||!g)return"";const t=p.t;if(t!==g.h&&t!==g.a)return"";
+ const fin=g.done,P=(g.pr||{})[pid],A=fin?(g.box||{})[pid]:null;if(!P&&!A)return"";
+ const o=t===g.h?g.a:g.h,v=pv(g,t),hfo=g.ns?0:(t===g.h?1:-1),mx=p.mx,gp=p.st[13]||0;
+ const perT=gp?lineTxt(p.st.slice(0,13).map(x=>x/gp),1):"",tvi=g.m&&g.m.tv?g.m.tv[t===g.h?0:1]:null;
+ let h=`<section class="mxs"><p class="kick">Matchup · Week ${g.wk} ${vsat(g,v)} ${esc(o)}${fin?" · Final":""}</p>`;
+ h+=fin?`<p class="mxl"><b>${A?(lineTxt(A)||"No touches"):"Did not play"}</b><small>Pregame projection: ${P?(lineTxt(P,1)||"a sliver of the offense"):"none"}.${perT?` Per game he has played this season: ${perT}.`:""}</small></p>`
+  :`<p class="mxl"><b>Projected: ${P?(lineTxt(P,1)||"a sliver of the offense"):"no role"}</b><small>${perT?`Per game he has played this season: ${perT}.`:""}${g.m?` Model: ${mspread(g)}, total ${(g.m.hp+g.m.ap).toFixed(1)}.`:""}</small></p>`;
+ FAMS.forEach(F=>{const pvol=P?S(P,F.vol):0,avol=A?S(A,F.vol):0;if(Math.max(pvol,avol)<F.show)return;
+  const m=MET[F.main],d=dxOf(o,m),arr=mx&&mx[F.k],q=arr?arr[1+F.rates.findIndex(r=>r[0]===F.main)]:null;
+  h+=`<div class="mxf"><h3>${F.t}<small>${esc(o)}'s ${UNITN[m]}: ${d&&d.r?`#${d.r} of ${M.nfbs_dx} FBS in ${MLAB[m]} allowed`:d?"FCS, not ranked with FBS teams":"no rating yet"}</small></h3>`;
+  if(q&&ok(q[0]))h+=`<p class="note">${schedTxt(F,arr[0],q,m)}</p>`;
+  if(!fin&&P&&q&&pvol>0)h+=wfall(F,q,o,hfo,d);
+  h+=rtable(F,arr,o,P,A,fin,hfo);
+  if(!fin&&P&&tvi&&mx)h+=`<p class="note" style="margin-top:10px">${volTxt(F,t,tvi,mx,pvol,g.m?(t===g.h?1:-1)*(g.m.hp-g.m.ap):0)}</p>`;
+  h+=chartBlock(F,pid,t,gid,q,P,fin,hfo)+`</div>`});
+ return h+`${fin?`<p class="note" style="margin-top:12px">Rates, ranks and the season numbers above are as of now; the pregame projection used only games before Week ${g.wk}.</p>`:""}</section>`}
+
 /* ---------- player panel ---------- */
-function openP(pid){const p=PL[pid];if(!p)return;const t=p.t,x=T[t]||{},s=p.st,gp=s[13];
+function openP(pid,gid){const p=PL[pid];if(!p)return;const t=p.t,x=T[t]||{},s=p.st,gp=s[13];
  const tiles=[];
  if(S(s,"att")>0)tiles.push(["Passing",[[`${S(s,"cmp")}/${S(s,"att")}`,"Cmp/Att"],[yd(S(s,"py")),"Yds"],[S(s,"ptd"),"TD"],[S(s,"int"),"INT"],[S(s,"sk"),"Sacks"]]]);
  if(S(s,"car")>0)tiles.push(["Rushing",[[S(s,"car"),"Carries"],[yd(S(s,"ry")),"Yds"],[mn((S(s,"ry")/S(s,"car")).toFixed(1)),"Per carry"],[S(s,"rtd"),"TD"]]]);
  if(S(s,"tgt")>0)tiles.push(["Receiving",[[S(s,"tgt"),"Targets"],[S(s,"rec"),"Catches"],[yd(S(s,"recy")),"Yds"],[S(s,"rectd"),"TD"]]]);
  const tot=tiles.length?tiles.map(([h,ks])=>`<h3>${h}</h3><div class="stt">${ks.map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("")}</div>`).join("")
   :`<p class="empty" style="padding:8px 0">No passing, rushing or receiving numbers in 2026 yet.</p>`;
- const nx=nextG(t),ng=nx&&GM[nx];let nb="";
- if(ng){const v=pv(ng,t),P=ng.pr&&ng.pr[pid],lt=P&&lineTxt(P,1);
+ const nx=nextG(t),ng=nx&&GM[nx],mg=gid&&GM[gid]?gid:nx,mxh=mg?matchupSec(pid,mg):"";let nb="";
+ if(ng&&!mxh){const v=pv(ng,t),P=ng.pr&&ng.pr[pid],lt=P&&lineTxt(P,1);
   nb=`<div class="nbox tc" style="${tv(t)}"><b>${isP4(t)?"Next":"Next game in the data"}: Week ${ng.wk} ${vsat(ng,v)} ${esc(v.o)}</b><span class="dim">${dateL(ng)} · ${timeL(ng)}</span>
   <p>${P?(lt?`Projected ${lt}.`:"Projected for only a sliver of the offense in this game."):ng.pr?"Not projected for this game: he hasn't had a role in recent games.":"No projection for this game yet."} <a href="${GH(nx)}">Game view →</a></p></div>`}
  const gl=(TG[t]||[]).filter(g=>GM[g].done&&((GM[g].box||{})[pid]||(GM[g].pr||{})[pid]));
@@ -501,27 +649,27 @@ function openP(pid){const p=PL[pid];if(!p)return;const t=p.t,x=T[t]||{},s=p.st,g
  $("#ppb").innerHTML=`<div class="ppbar"><p class="kick">Player profile</p><button class="x" id="ppx">Close</button></div>
  <div class="pph tc" style="${tv(t)}"><p class="nm" id="ppn">${esc(p.n)}</p>
  <p class="meta"><i class="dot"></i>${esc(p.pos)}${p.jn?` #${esc(p.jn)}`:""}, ${tl(t)} (${esc(confOf(t))}), ${games(gp)}</p>${p.b?`<p class="bio">${esc(p.b)}</p>`:""}${pkl}</div>
- ${nb}<h3 style="margin-top:22px">Season totals <small>all 2026 games</small></h3>${tot}
+ ${mxh}${nb}<h3 style="margin-top:22px">Season totals <small>all 2026 games</small></h3>${tot}
  <h3>Game by game${isP4(t)?"":` <small>games vs. Power 4 and Notre Dame only</small>`}</h3>
  ${log?`<div class="tw"><table class="lg"><thead><tr><th class="num">Wk</th><th>Opp.</th><th>Line</th></tr></thead><tbody>${log}</tbody></table></div><p class="note" style="margin-top:6px">Tap a game to open it. Gray lines are the model's pregame projection.</p>`:`<p class="empty" style="padding:8px 0">${isP4(t)?"No games played yet.":"No games against Power 4 teams or Notre Dame yet."}</p>`}`;
  $("#ppx").onclick=()=>DLG.close();
- if(!DLG.open){try{DLG.showModal()}catch(e){DLG.setAttribute("open","")}}DLG.scrollTop=0;$("#ppx").focus()}
+ if(!DLG.open){try{DLG.showModal()}catch(e){DLG.setAttribute("open","")}}DLG.scrollTop=0;drawCharts();$("#ppx").focus()}
 DLG.addEventListener("click",e=>{if(e.target===DLG)DLG.close()});
 
 /* ---------- footer: how the projections work ---------- */
 function foot(){const a=M.acc||{},c=M.cal||{},c0=M.cal25||{},f=(v,d=1)=>ok(v)?(+v).toFixed(d):"–";
  const wk=a.wk0===a.wk1?`Week ${a.wk0}`:`Weeks ${a.wk0} to ${a.wk1}`,lineN=a.nv===a.games?`all ${a.games}`:`the ${a.nv} with a Vegas line`;
  const calT=(a.cal||[]).length?`<div class="tw"><table><thead><tr><th>Model's chance for the favorite</th><th class="num">Games</th><th class="num">Expected to win</th><th class="num">Actually won</th></tr></thead><tbody>${a.cal.map(r=>`<tr><td>${Math.round(r.lo*100)}–${Math.round(r.hi*100)}%</td><td class="num">${r.n}</td><td class="num">${f(r.exp)}%</td><td class="num">${f(r.won)}%</td></tr>`).join("")}</tbody></table></div>`:"";
- const pl=Object.values(a.pl||{}),plT=pl.length?`<div class="tw"><table><thead><tr><th>Stat</th><th class="num">Player-games</th><th class="num">Model error</th><th class="num">Season-average error</th><th class="num">Correlation</th></tr></thead><tbody>${pl.map(r=>`<tr><td>${esc(r.l)}</td><td class="num">${r.n}</td><td class="num">${f(r.m)}</td><td class="num">${f(r.b)}</td><td class="num">${ok(r.r)?(r.r/100).toFixed(2):"–"}</td></tr>`).join("")}</tbody></table></div>`:"";
+ const pl=Object.values(a.pl||{}),plT=pl.length?`<div class="tw"><table><thead><tr><th>Stat</th><th class="num">Player-games</th><th class="num">Model error</th><th class="num">Season-average error</th><th class="num">Correlation</th></tr></thead><tbody>${pl.map(r=>`<tr><td>${esc(r.l)}</td><td class="num">${r.n}</td><td class="num">${f(r.m,/TD/.test(r.l)?2:1)}</td><td class="num">${f(r.b,/TD/.test(r.l)?2:1)}</td><td class="num">${ok(r.r)?(r.r/100).toFixed(2):"–"}</td></tr>`).join("")}</tbody></table></div>`:"";
  $("#foot").innerHTML=`<h2>How the projections work</h2>
- <p><b>Team ratings.</b> The same opponent-adjusted ratings behind the Players page: a ridge regression rates every offense and defense on EPA per play and other stats, controlling for opponents and home field, with blowout plays left out. For projections each team starts from last season split two ways: its conference's average carries over strongly from year to year, its standing within the conference much less (both measured from 2024 to 2025).</p>
- <p><b>Projected score.</b> Each team's points are its projected plays (from both teams' pace) times the league's points per play plus a scale factor (now ${f(c.scale,2)}) × its net EPA-per-play edge (its offense rating plus the opponent's defense rating plus home field), plus a league-tier adjustment, because scrimmage EPA misjudges how far apart Power 4, Group of 5 and FCS teams are. Win probability treats the actual margin as normally distributed around the projected margin with a standard deviation of ${f(c.sigma)} points. The scale, tier terms and spread were first fit by replaying the 2025 season week by week${c0.n?` (${c0.n} games; scale ${f(c0.scale,2)}, standard deviation ${f(c0.sigma)})`:""}, then updated with this season's completed games${c.n26?` (${c.n26} so far)`:""}, the 2025 fit counting as 100 games. A played game's projection uses only the games before its week.</p>
- <p><b>Player projections.</b> Team volume (plays × the team's pass rate; sacks from both teams' sack ratings) × the player's share of his team's pass attempts, carries and targets, with recent games counting more (a game's weight halves every 2 games back, and a game he missed counts as zero share) × his per-play efficiency: his opponent-adjusted rate, pulled toward the average for his position when the sample is small, plus the opponent's defensive rating and home field. Receivers' catches, yards and TDs are reconciled with the quarterbacks' so the two sides of the passing game agree.</p>
+ <p><b>Team ratings.</b> Ridge regressions rate every offense and defense, controlling for opponents and home field, on EPA per play, success rate, points per drive (touchdowns and field goals per possession) and a dozen other stats, with blowout plays left out. Each team starts the season from last year's ratings split three ways, its conference's average, its standing within the conference and its roster talent (the 247Sports composite), and that starting point is held loosely: in replays of the 2024, 2025 and 2026 seasons, letting this season's games take over four times faster than the year-to-year spread suggests predicted best.</p>
+ <p><b>Projected score.</b> Each team's edge is measured three ways: EPA per play times its expected plays, points per drive times its expected drives, and success rate times plays (expected plays and drives come from both teams' pace). Replaying the 2025 season week by week${c0.n?` (${c0.n} games)`:""} set how much each counts toward the margin and the total, along with league-tier and home-field terms; this season's completed games update those weights as they come in${c.n26?` (${c.n26} so far)`:""}, the 2025 fit counting as 100 games. Points per drive carries the most weight. Win probability treats the actual margin as normally distributed around the projection with a standard deviation of ${f(c.sigma)} points. A played game's projection uses only the games before its week.</p>
+ <p><b>Player projections.</b> Volume first: the team's projected plays (from pace and the projected total) and pass rate (its own, minus about 1.4 percentage points for every 10 points it is projected to lead), then each player's recent share of the team's pass attempts, carries and targets (a game's weight halves every 2 team games back for passes and carries and every 3 for targets; a game he missed counts as zero), blended with his average per game played and trimmed when the projected margin is large, since starters sit in blowouts. Then a rate for each stat: the FBS average for his position, plus part of his edge over it once his numbers are adjusted for the defenses he has faced (small samples pulled toward the average), plus part of this opponent's defensive rating and home field. The parts were fit on the 2025 season replayed week by week: for yards per attempt, ${pcw("py",1)} of the passer's edge and ${pcw("py",2)} of the defense's; yards per carry, ${pcw("ry",1)} and ${pcw("ry",2)}; yards per target, ${pcw("recy",1)} and ${pcw("recy",2)}. A defense counts for less than its full rating because ratings built from a few games are noisy. Tap any player in a game for the full breakdown.</p>
  <p><b>Track record.</b> Every played game from Week ${a.wk0} on has a true pregame projection: ratings, usage and player rates are rebuilt from earlier weeks only. Across ${a.games} games in ${wk}, the model picked the winner ${f(a.su)}% of the time${a.nv!==a.games?` (${f(a.m_su_v)}% on games with a line)`:""}; the Vegas favorite won ${f(a.v_su)}%. On ${lineN}, the model's average miss on the margin was ${f(a.mv_mae)} points against Vegas's ${f(a.v_mae)}, and on the total ${f(a.mvt_mae)} against ${f(a.vt_mae)}. Vegas is more accurate on games; the model's edge is that it projects every player. Win chances have been about as reliable as stated:</p>
  ${calT}
  <p>Player lines, against a baseline of each player's season average so far (error is the average miss; correlation is between projected and actual):</p>
  ${plT}
- <p><b>Limits.</b> No injury reports or depth-chart news, so a player who missed recent games is projected at a reduced share. No projection for Week 1. FCS opponents have little data. Special teams and turnovers aren't modeled separately. Projections are averages, not ceilings.</p>
+ <p><b>Limits.</b> No injury reports or depth-chart news, so a player who missed recent games is projected at a reduced share (and one who missed the team's last two games loses the per-game-average part of his volume). No projection for Week 1. FCS opponents have little data. Special teams and turnovers aren't modeled separately. Projections are averages, not ceilings.</p>
  <p>Source is cfbfastR's 2026 play-by-play and ESPN's game rosters and box scores; dates and kickoff times are Eastern. Vegas lines are sportsdataverse's for played games and ESPN's current line for games not yet played. Games through {{THROUGH}}.</p>`}
 
 /* ---------- routing ---------- */
@@ -530,10 +678,11 @@ function route(first){const raw=location.hash.replace(/^#\/?/,""),i=raw.indexOf(
  if(DLG.open)DLG.close();
  if(kind==="team"&&T[arg]&&T[arg].p4)teamView(arg);
  else if(kind==="game"&&GM[arg])gameView(arg);
+ else if(kind==="game"&&/^\d+\/\d+$/.test(arg)&&GM[arg.split("/")[0]]){const[g,p]=arg.split("/");gameView(g);if(PL[p])setTimeout(()=>openP(p,g))}   // #game/<id>/<player id>: that player's matchup
  else if(kind==="team"||kind==="game"){document.title="Not found: 2026 teams";V.innerHTML=`<p class="crumb"><a href="#">All teams</a></p><h1 id="h1" tabindex="-1" style="font-size:48px">Not found</h1><p class="sub">${kind==="team"?`There's no team page for “${esc(arg)}”. Team pages cover the Power 4 conferences and Notre Dame.`:"That game isn't in the data."} <a href="#">Back to all teams</a>.</p>`}
  else{dirView();if(kind==="how"){$("#foot").scrollIntoView();return}}
  if(!first){scrollTo(0,0);const h=$("#h1");if(h)h.focus({preventScroll:true})}}
-document.addEventListener("click",e=>{const b=e.target.closest("button.pl");if(b){openP(b.dataset.p);return}
+document.addEventListener("click",e=>{const b=e.target.closest("button.pl");if(b){openP(b.dataset.p,b.dataset.g);return}
  const a=e.target.closest("a[href^='#']");if(a&&DLG.open&&a.getAttribute("href")===(location.hash||"#")){DLG.close();return}
 
  const tr=e.target.closest("tr[data-g]");if(tr&&!e.target.closest("a,button"))go(GH(tr.dataset.g))});

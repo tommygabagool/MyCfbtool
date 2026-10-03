@@ -1,11 +1,14 @@
-"""Shared helpers: play outcomes (success, explosives, conversions, garbage time), the metric definitions,
-and the ridge-regression fit that rates every offense and defense on each metric."""
+"""Shared helpers: play outcomes (success, explosives, conversions, garbage time), the metric definitions, the ridge-
+regression fit that rates every offense and defense on each metric (and on points per drive), last season's ratings as
+this season's starting point, and the game model (projected margin and total)."""
 import pandas as pd, numpy as np, scipy.sparse as sp
 FBSC = {'ACC','American Athletic','Big 12','Big Ten','Conference USA','FBS Independents',
         'Mid-American','Mountain West','Pac-12','SEC','Sun Belt'}
 COLS = ['game_id','week','pos_team','def_pos_team','home','away','neutral_site','play_type','play_text','rush','pass','pass_attempt',
         'completion','sack','int','pass_td','rush_td','fumble_vec','yards_gained','completion_yds','rush_yds','down','distance','EPA',
-        'pos_score_diff_start','period','penalty_no_play','home_team_conference','away_team_conference','home_team','away_team']
+        'pos_score_diff_start','period','penalty_no_play','home_team_conference','away_team_conference','home_team','away_team',
+        'drive_id','drive_result','home_team_id','away_team_id']
+LOOSEN = 4.0   # last season's ratings are held 4x more loosely than their year-to-year spread suggests (2024-2026 replays)
 
 def fbs_teams(p):
     g = p.drop_duplicates('game_id')
@@ -56,61 +59,102 @@ def metric_defs(s):
             'ypc': (s.cmp, 'pyds'), 'conv': (s.live & s.late, 'conv'), 'epa': (s.live, 'epa'), 'sr': (s.live, 'succ'),
             'psr': (s.is_att, 'succ'), 'pepa': (s.is_att, 'epa'), 'stf': (r, 'stf')}
 
-def fit(s, FBS, prior=None):
-    """Ridge: y = mu + off_team + def_team + FCS-group terms + home. Returns effects per metric.
-    prior: {metric: {'off': {team: (mean, lam)}, 'def': {...}}} shrinks toward last season's rating instead of zero."""
-    M = metric_defs(s)
-    teams = sorted(set(s.off) | set(s.dfn)); ix = {t: i for i, t in enumerate(teams)}; N = len(teams)
+DRIVE_PTS = {'TD': 7.0, 'FG': 3.0, 'END OF HALF TD': 7.0, 'END OF GAME TD': 7.0}
+DRIVE_SKIP = {'END OF HALF', 'END OF GAME', 'END OF 4TH QUARTER', 'Uncategorized', 'KICKOFF'}   # kneel-downs and clock-outs say little
+
+def drive_table(s):
+    """One row per offensive drive (from scrimmage plays carrying drive_id/drive_result): game, week, offense, defense,
+    home flag, the offense's points (7 for a touchdown, 3 for a field goal) and whether it began in garbage time."""
+    d = s[s.drive_id.notna()]
+    D = d.groupby('drive_id').agg(game_id=('game_id', 'first'), week=('week', 'first'), off=('off', 'first'), dfn=('dfn', 'first'),
+                                  homeflag=('homeflag', 'first'), res=('drive_result', 'first'), garbage=('garbage', 'first')).reset_index()
+    D['gid'] = D.game_id.astype(int); D['pts'] = D.res.map(DRIVE_PTS).fillna(0.0)
+    return D
+
+def _ridge(d, y, FBS, pk=None):
+    """Ridge: y = mu + off_team + def_team + FCS-group terms + home, with team terms shrunk toward pk's means (else zero)."""
+    teams = sorted(set(d.off) | set(d.dfn)); ix = {t: i for i, t in enumerate(teams)}; N = len(teams)
     isF = np.array([t not in FBS for t in teams])
+    n = len(d)
+    oi = d.off.map(ix).values; di = d.dfn.map(ix).values; rows = np.arange(n)
+    X = sp.hstack([sp.csr_matrix((np.ones(n), (rows, oi)), shape=(n, N)), sp.csr_matrix((np.ones(n), (rows, di)), shape=(n, N)),
+                   sp.csr_matrix(isF[oi].astype(float)[:, None]), sp.csr_matrix(isF[di].astype(float)[:, None]),
+                   sp.csr_matrix(d.homeflag.values.astype(float)[:, None]), sp.csr_matrix(np.ones((n, 1)))]).tocsr()
+    s2 = y.var()
+    g = pd.DataFrame(dict(t=d.dfn.values, y=y))[d.dfn.isin(FBS).values].groupby('t').y.agg(['mean', 'size'])
+    tau2 = max(g['mean'].var() - (s2 / g['size']).mean(), 0.05 * g['mean'].var())
+    lam0 = float(np.clip(s2 / tau2, 1, 5000))
+    P = np.r_[np.full(2 * N, lam0), 1.0, 1.0, 1.0, 0.0]; mu = np.zeros(2 * N + 4)
+    if pk is not None:
+        P[:2 * N] = s2 / pk['tau2_default']                      # teams with no usable history: shrink toward average (FCS toward FCS)
+        for side, off in (('off', 0), ('def', N)):
+            lam = s2 / pk['tau2_' + side]
+            for t, m0 in pk['mu_' + side].items():
+                if t in ix and t in FBS: mu[off + ix[t]] = m0; P[off + ix[t]] = lam
+    A = (X.T @ X).toarray() + np.diag(P); b = X.T @ y + P * mu
+    beta = np.linalg.solve(A, b)
+    oe = beta[:N] + np.where(isF, beta[2 * N], 0.0); de = beta[N:2 * N] + np.where(isF, beta[2 * N + 1], 0.0)
+    oe = oe - oe[~isF].mean(); de = de - de[~isF].mean()
+    return dict(off={t: float(oe[ix[t]]) for t in teams}, dfn={t: float(de[ix[t]]) for t in teams},
+                lam0=lam0, s2=float(s2), n=n, home=float(beta[2 * N + 2]), fcs_def=float(beta[2 * N + 1]),
+                # rating of an FCS team with no plays yet: the FCS group term, on the same centered scale
+                fcs_off_c=float(beta[2 * N] - (beta[:N] + np.where(isF, beta[2 * N], 0.0))[~isF].mean()),
+                fcs_def_c=float(beta[2 * N + 1] - (beta[N:2 * N] + np.where(isF, beta[2 * N + 1], 0.0))[~isF].mean()))
+
+def fit(s, FBS, prior=None, keys=None, drives=None):
+    """Rates every offense and defense, plus home field, on each play metric (blowout plays left out); with drives (from
+    drive_table), also on points per drive ('ppd'). keys limits the play metrics. Returns {metric: effects}.
+    prior: {metric: {'mu_off': {team: mean}, 'mu_def': {...}, 'tau2_off', 'tau2_def', 'tau2_default'}} shrinks each team
+    toward last season's rating instead of zero."""
+    M = metric_defs(s)
     res = {}
     for k, (f, col) in M.items():
+        if keys is not None and k not in keys: continue
         d = s[f & ~s.garbage & s[col].notna()]
-        y = d[col].astype(float).values; n = len(d)
-        oi = d.off.map(ix).values; di = d.dfn.map(ix).values; rows = np.arange(n)
-        X = sp.hstack([sp.csr_matrix((np.ones(n), (rows, oi)), shape=(n, N)), sp.csr_matrix((np.ones(n), (rows, di)), shape=(n, N)),
-                       sp.csr_matrix(isF[oi].astype(float)[:, None]), sp.csr_matrix(isF[di].astype(float)[:, None]),
-                       sp.csr_matrix(d.homeflag.values.astype(float)[:, None]), sp.csr_matrix(np.ones((n, 1)))]).tocsr()
-        s2 = y.var()
-        g = d[d.dfn.isin(FBS)].groupby('dfn')[col].agg(['mean', 'size'])
-        tau2 = max(g['mean'].var() - (s2 / g['size']).mean(), 0.05 * g['mean'].var())
-        lam0 = float(np.clip(s2 / tau2, 20, 5000))
-        P = np.r_[np.full(2 * N, lam0), 1.0, 1.0, 1.0, 0.0]; mu = np.zeros(2 * N + 4)
-        if prior is not None and k in prior:
-            pr = prior[k]
-            P[:2 * N] = s2 / pr['tau2_default']                      # teams with no usable history: shrink toward average (FCS toward FCS)
-            for side, off in (('off', 0), ('def', N)):
-                lam = s2 / pr['tau2_' + side]
-                for t, m0 in pr['mu_' + side].items():
-                    if t in ix and t in FBS: mu[off + ix[t]] = m0; P[off + ix[t]] = lam
-        A = (X.T @ X).toarray() + np.diag(P); b = X.T @ y + P * mu
-        beta = np.linalg.solve(A, b)
-        oe = beta[:N] + np.where(isF, beta[2 * N], 0.0); de = beta[N:2 * N] + np.where(isF, beta[2 * N + 1], 0.0)
-        oe = oe - oe[~isF].mean(); de = de - de[~isF].mean()
-        res[k] = dict(off={t: float(oe[ix[t]]) for t in teams}, dfn={t: float(de[ix[t]]) for t in teams},
-                      lam0=lam0, s2=float(s2), n=n, home=float(beta[2 * N + 2]), fcs_def=float(beta[2 * N + 1]),
-                      # rating of an FCS team with no plays yet: the FCS group term, on the same centered scale
-                      fcs_off_c=float(beta[2 * N] - (beta[:N] + np.where(isF, beta[2 * N], 0.0))[~isF].mean()),
-                      fcs_def_c=float(beta[2 * N + 1] - (beta[N:2 * N] + np.where(isF, beta[2 * N + 1], 0.0))[~isF].mean()))
+        res[k] = _ridge(d, d[col].astype(float).values, FBS, prior.get(k) if prior else None)
+    if drives is not None:
+        dd = drives[~drives.garbage & drives.res.notna() & ~drives.res.isin(DRIVE_SKIP)]
+        res['ppd'] = _ridge(dd, dd.pts.values, FBS, prior.get('ppd') if prior else None)
     return res
 
-def season_prior(R, Y, base=2025, conf=None):
+def talent_z(path, tid, FBS):
+    """{team: talent composite as a z-score among FBS teams} from a cfb_team_talent file; tid maps team name -> ESPN team id."""
+    T = pd.read_parquet(path); by_id = dict(zip(T.team_id.astype(int), T.talent_composite.astype(float)))
+    v = pd.Series({t: by_id[int(i)] for t, i in tid.items() if t in FBS and pd.notna(i) and int(i) in by_id}, dtype=float)
+    return ((v - v.mean()) / v.std()).to_dict()
+
+def team_ids(p):
+    """{team name: ESPN team id} from play-by-play."""
+    g = p.drop_duplicates('game_id')
+    return {**dict(zip(g.away_team, g.away_team_id)), **dict(zip(g.home_team, g.home_team_id))}
+
+def season_prior(R, Y, base=2025, conf=None, tz=None, loosen=1.0):
     """Prior for fit(): each FBS team starts from its rating in season `base` scaled by the 2024-to-2025 carryover slope,
     held with the year-to-year residual variance. R comes from seasons.pkl, Y from persistence.csv.
     With conf ({team: conference in the season being rated}) and Y from persistence_conf.csv, the carryover is split in two:
-    the conference's average rating carries over at one rate and the team's standing within its conference at another."""
+    the conference's average rating carries over at one rate and the team's standing within its conference at another.
+    With tz ({team: talent z-score this season}) and an s_tal column in Y, roster talent shifts the starting point too
+    (teams new to FBS start from talent alone). loosen multiplies the prior variances (> 1: this season's games count more)."""
     fbs25 = set(R[base]['_fbs']); prior = {}
     for k in [m for m in R[base] if not m.startswith('_')]:
         r25 = R[base][k]; tau2_full = r25['s2'] / r25['lam0']
-        pk = {'tau2_default': tau2_full}
+        pk = {'tau2_default': tau2_full * loosen}
         for side, key in (('off', 'off'), ('def', 'dfn')):
-            row = Y[(Y.metric == k) & (Y.side == key)].iloc[0]
-            pk['tau2_' + side] = max(row.resid_sd ** 2, 0.25 * tau2_full)
+            sel = Y[(Y.metric == k) & (Y.side == key)]
+            if not len(sel): continue
+            row = sel.iloc[0]
+            pk['tau2_' + side] = max(row.resid_sd ** 2, 0.25 * tau2_full) * loosen
             if conf is None:
                 pk['mu_' + side] = {t: row.slope * v for t, v in r25[key].items() if t in fbs25}
             else:
                 cm = conf_means(r25[key], fbs25, conf)
-                pk['mu_' + side] = {t: row.s_conf * cm[t] + row.s_dev * (v - cm[t]) for t, v in r25[key].items() if t in fbs25}
-        prior[k] = pk
+                st = row.s_tal if (tz is not None and 's_tal' in row and pd.notna(row.s_tal)) else 0.0
+                pk['mu_' + side] = {t: row.s_conf * cm[t] + row.s_dev * (v - cm[t]) + st * tz.get(t, 0.0)
+                                    for t, v in r25[key].items() if t in fbs25}
+                if st and tz is not None:
+                    for t, z in tz.items():
+                        pk['mu_' + side].setdefault(t, st * z)
+        if 'mu_off' in pk and 'mu_def' in pk: prior[k] = pk
     return prior
 
 def conf_means(rating, teams, conf):
@@ -136,6 +180,14 @@ def pace_points(tr, FBS, pts):
         return ((g['mean'] * g['size'] + 2 * L) / (g['size'] + 2)).to_dict()
     return L, ppp, shr('off'), shr('dfn')
 
+def drive_pace(dr):
+    """League drives per team-game and each team's drives per game on offense and allowed, shrunk 2 games toward average."""
+    L = float(dr.groupby(['gid', 'off']).size().mean())
+    def shr(by):
+        g = dr.groupby([by, 'gid']).size().groupby(level=0).agg(['mean', 'size'])
+        return ((g['mean'] * g['size'] + 2 * L) / (g['size'] + 2)).to_dict()
+    return L, shr('off'), shr('dfn')
+
 def rating(r, side, t, FBS):
     """Team t's rating from one metric's fit() result; a team with no plays yet gets the FCS group rating (or average FBS)."""
     v = r[side].get(t)
@@ -147,14 +199,30 @@ def tiers(t, conf, FBS):
     """(Power 4 or Notre Dame, FCS) indicators for the league-tier term."""
     return float(conf.get(t) in P4C or t == 'Notre Dame'), float(t not in FBS)
 
-def team_points(t, o, hf, r, FBS, L, ppp, pace_o, pace_d, cal, conf):
-    """Projected scrimmage plays, net EPA-per-play edge and points for offense t against defense o.
-    r: the 'epa' entry of fit()'s result; cal: calib.json (scale, and the tier terms split evenly between the two teams)."""
+# ---------- game model: margin and total from three rating edges, each scaled to the game's expected plays or drives
+MCOLS = ['E', 'Pd', 'Sr', 'p4', 'fcs', 'hf']     # margin terms (home minus away; hf = 1 at the home team's field)
+TCOLS = ['base', 'E', 'Pd', 'Sr', 'c']           # total terms (both teams summed)
+
+def side_feats(t, o, h, R, FBS, conf, L, ppp, pace_o, pace_d, Ld, dpace_o, dpace_d):
+    """Offense t against defense o (h = +1 home, -1 away, 0 neutral): expected plays and drives, and the EPA, points-per-
+    drive and success-rate edges in points-like units (edge per play or drive x plays or drives)."""
     plays = pace_o.get(t, L) + pace_d.get(o, L) - L
-    epa = rating(r, 'off', t, FBS) + rating(r, 'dfn', o, FBS) + r['home'] * hf
-    (p4t, fct), (p4o, fco) = tiers(t, conf, FBS), tiers(o, conf, FBS)
-    tier = (cal.get('p4', 0.0) * (p4t - p4o) + cal.get('fcs', 0.0) * (fct - fco)) / 2
-    return plays, epa, floor0(plays * (ppp + cal['scale'] * epa) + tier)
+    drives = dpace_o.get(t, Ld) + dpace_d.get(o, Ld) - Ld
+    net = lambda k: rating(R[k], 'off', t, FBS) + rating(R[k], 'dfn', o, FBS) + R[k]['home'] * h
+    p4, fcs = tiers(t, conf, FBS)
+    return dict(plays=plays, drives=drives, base=plays * ppp, E=plays * net('epa'), Pd=drives * net('ppd'), Sr=plays * net('sr'), p4=p4, fcs=fcs)
+
+def game_x(fh, fa, hf):
+    """Margin and total design rows for a game from side_feats() of the home and away offenses."""
+    xm = np.array([fh['E'] - fa['E'], fh['Pd'] - fa['Pd'], fh['Sr'] - fa['Sr'], fh['p4'] - fa['p4'], fh['fcs'] - fa['fcs'], float(hf)])
+    xt = np.array([fh['base'] + fa['base'], fh['E'] + fa['E'], fh['Pd'] + fa['Pd'], fh['Sr'] + fa['Sr'], 1.0])
+    return xm, xt, fh['base'] - fa['base']
+
+def game_points(cal, fh, fa, hf):
+    """(home points, away points, margin, total). The base margin (plays x league points per play) enters with weight 1."""
+    xm, xt, b0 = game_x(fh, fa, hf)
+    margin = b0 + xm @ np.asarray(cal['m']); total = xt @ np.asarray(cal['t'])
+    return floor0((total + margin) / 2), floor0((total - margin) / 2), margin, total
 
 def floor0(mu, sd=12.0):
     """Expected points when the raw projection mu is the mean of a team score (sd ~12 points) that can't go below zero.

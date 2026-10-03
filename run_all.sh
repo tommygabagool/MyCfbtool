@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 PY=${PYTHON:-python3}
 $PY pipeline/download_data.py "$@"
-for step in prep seasons fit2026 calibrate qbstats arch dataset prep_skill skill project teams build; do
+for step in prep seasons fit2026 calibrate calibrate_players qbstats arch dataset prep_skill skill project teams build; do
   echo "== $step"
   $PY "pipeline/$step.py"
 done

@@ -117,7 +117,7 @@ s['garbage'] = ((s.period == 1) & (m_ > 43)) | ((s.period == 2) & (m_ > 37)) | (
 s['off'] = s.pos_team; s['dfn'] = s.def_pos_team
 s['homeflag'] = np.where(s.neutral_site == True, 0, np.where(s.pos_team == s.home, 1, np.where(s.pos_team == s.away, -1, 0)))
 keep = ['game_id','week','off','dfn','home','away','homeflag','period','down','distance','qb','is_att','is_sack','is_rush','kneel',
-        'cmp','pyds','ryds','sky','ptd','rtd','intc','xp','xr','stf','succ','late','conv','epa','garbage','play_text']
+        'cmp','pyds','ryds','sky','ptd','rtd','intc','xp','xr','stf','succ','late','conv','epa','garbage','play_text','drive_id','drive_result']
 s[keep].to_parquet('plays.parquet')
 import json; json.dump({'conf': conf, 'fbs': sorted(FBS)}, open('teams.json', 'w'))
 print('plays', len(s), 'garbage share', s.garbage.mean().round(3), 'EPA null', s.epa.isna().mean().round(4), 'succ null', s.succ.isna().mean().round(4))

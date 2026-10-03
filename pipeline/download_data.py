@@ -19,8 +19,11 @@ FILES = {  # local name -> source
     'schedules_2026.parquet': f'{BASE}/cfb_schedules/cfb_schedules_{SEASON}.parquet',     # dates, venues, scores (project.py, teams.py)
     'betting_2026.parquet': f'{BASE}/espn_cfb_betting/betting_{SEASON}.parquet',           # Vegas lines for played games (project.py, teams.py)
     'schedules_2025.parquet': f'{BASE}/cfb_schedules/cfb_schedules_2025.parquet',          # scores for the 2025 calibration (calibrate.py)
+    'game_rosters_2025.parquet': f'{BASE}/espn_cfb_game_rosters/game_rosters_2025.parquet',  # positions for the 2025 player calibration
+    'talent_2025.parquet': f'{BASE}/cfb_team_talent/cfb_team_talent_2025.parquet',         # 247 roster talent: carryover fit (seasons.py)
+    'talent_2026.parquet': f'{BASE}/cfb_team_talent/cfb_team_talent_{SEASON}.parquet',      # and this season's starting ratings (project.py)
 }
-CURRENT = {'pbp.parquet', 'game_rosters_2026.parquet', 'player_box_2026.parquet', 'schedules_2026.parquet', 'betting_2026.parquet'}
+CURRENT = {'pbp.parquet', 'game_rosters_2026.parquet', 'player_box_2026.parquet', 'schedules_2026.parquet', 'betting_2026.parquet', 'talent_2026.parquet'}
 ESPN = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard'
 LINES = Path('../data/espn_lines_2026.json')  # Vegas lines for games not yet played (teams.py)
 
